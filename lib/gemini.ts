@@ -55,3 +55,96 @@ ${promptText}
   const validated = GeminiSchema.parse(parsed);
   return validated;
 }
+
+export async function improvePrompt(promptText: string): Promise<string> {
+  const { GoogleGenerativeAI } = await import('@google/generative-ai');
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+  // Using the new gemini-2.5-flash which is the one you prefer
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+  const instruction = `You are an expert AI prompt engineer.
+
+Your job is NOT just to rewrite the prompt, but to make it more effective and usable for AI generation.
+
+Rules:
+
+If the prompt lacks a clear subject, you MUST intelligently infer or add a suitable subject.
+Transform generic technical prompts into a complete scene.
+Add a clear subject, environment, and context.
+Improve structure, clarity, and quality.
+Keep it concise but powerful.
+Do NOT just rephrase — upgrade the prompt.
+
+Return ONLY the improved prompt.
+
+Prompt:
+"""
+${promptText}
+"""`;
+
+  const result = await model.generateContent(instruction);
+  const text = result.response.text();
+
+  return text.trim();
+}
+
+export async function suggestStyles(promptText: string): Promise<string[]> {
+  const { GoogleGenerativeAI } = await import('@google/generative-ai');
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+  const instruction = `Analyze the following prompt and suggest the most suitable style variations.
+
+Rules:
+* Suggest 3 to 5 styles maximum
+* Styles must match the context of the prompt
+* Avoid irrelevant styles
+* Keep them short (one word or short phrase)
+
+Return ONLY a JSON array.
+
+Prompt:
+"""
+${promptText}
+"""`;
+
+  const result = await model.generateContent(instruction);
+  const text = result.response.text();
+
+  const jsonMatch = text.match(/\[[\s\S]*\]/);
+  if (!jsonMatch) {
+    throw new Error('Gemini did not return valid JSON array');
+  }
+
+  const parsed = JSON.parse(jsonMatch[0]);
+  return parsed as string[];
+}
+
+export async function generateStylePrompt(promptText: string, style: string): Promise<string> {
+  const { GoogleGenerativeAI } = await import('@google/generative-ai');
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+  const instruction = `You are an expert AI prompt engineer.
+
+Transform the following prompt into a ${style} version.
+
+Rules:
+* Keep the original intent
+* Apply the selected style strongly
+* Add subject, environment, and scene if missing
+* Make it visually rich and production-ready
+* Keep it concise
+
+Return ONLY the improved prompt.
+
+Prompt:
+"""
+${promptText}
+"""`;
+
+  const result = await model.generateContent(instruction);
+  const text = result.response.text();
+
+  return text.trim();
+}
