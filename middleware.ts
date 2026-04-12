@@ -31,15 +31,18 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // Redirect unauthenticated users to login
-  if (!user && pathname !== '/login') {
+  // Paths that don't require authentication
+  const isPublicPath = pathname === '/' || pathname === '/login' || pathname === '/signup';
+
+  // Redirect unauthenticated users to login, except for the landing page
+  if (!user && !isPublicPath) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = '/login';
     return NextResponse.redirect(loginUrl);
   }
 
-  // Redirect authenticated users away from login
-  if (user && pathname === '/login') {
+  // Redirect authenticated users away from public-only pages (/login and /)
+  if (user && isPublicPath) {
     const dashboardUrl = request.nextUrl.clone();
     dashboardUrl.pathname = '/dashboard';
     return NextResponse.redirect(dashboardUrl);

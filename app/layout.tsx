@@ -5,10 +5,12 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'Prompts Brain — AI Prompt Library',
+  title: 'ZanZora — AI-Powered Prompt Brain',
   description:
-    'Your private AI-powered prompt library. Save, analyze, and manage prompts with Gemini AI.',
+    'Turn your prompts into a powerful AI brain. Analyze, improve, and organize your prompts with ZanZora.',
 };
+
+import { CookieConsent } from '@/components/ui/CookieConsent';
 
 export default function RootLayout({
   children,
@@ -16,9 +18,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${inter.variable} font-sans antialiased`}>
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
         {children}
+        <CookieConsent />
       </body>
     </html>
   );

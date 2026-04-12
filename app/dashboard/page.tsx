@@ -63,7 +63,9 @@ export default function DashboardPage() {
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <BrainCircuit className="h-6 w-6 text-violet-500" />
-            <span className="font-bold text-lg text-white tracking-tight">Prompts<span className="text-violet-500">Brain</span></span>
+            <span className="font-bold text-xl text-white tracking-tighter flex items-center gap-1">
+              Zan<span className="text-violet-500">Zora</span>
+            </span>
           </div>
           
           <div className="flex items-center gap-4">

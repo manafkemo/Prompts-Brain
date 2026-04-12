@@ -2,15 +2,19 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase';
-import { BrainCircuit, Mail, Lock, Eye, EyeOff, Github, Apple } from 'lucide-react';
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase';
+import { BrainCircuit, Mail, Lock, Eye, EyeOff, Github, Chrome, Apple } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export default function LoginPage() {
+export default function SignupPage() {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   
@@ -30,14 +34,25 @@ export default function LoginPage() {
     }
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      setError("Passwords don't match");
+      return;
+    }
+    
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: {
+          first_name: firstName,
+          last_name: lastName,
+        }
+      }
     });
 
     if (error) {
@@ -55,15 +70,15 @@ export default function LoginPage() {
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="bg-slate-900 border border-white/5 w-full max-w-6xl max-h-[min(95vh,850px)] h-auto rounded-[2.5rem] overflow-hidden flex flex-col lg:flex-row shadow-2xl shadow-black/50"
+        className="bg-slate-900 border border-white/5 w-full max-w-6xl max-h-[min(95vh,900px)] h-auto rounded-[2.5rem] overflow-hidden flex flex-col lg:flex-row shadow-2xl shadow-black/50"
       >
         
         {/* Left Side - Image/Hero */}
         <div className="lg:w-[45%] relative overflow-hidden flex flex-col min-h-[400px] lg:min-h-0">
           <img 
-            src="/login-hero.png" 
+            src="/signup-hero.png" 
             alt="ZanZora Hero" 
-            className="absolute inset-0 w-full h-full object-cover brightness-[0.7]"
+            className="absolute inset-0 w-full h-full object-cover brightness-[0.7] grayscale-[0.2]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
           
@@ -75,13 +90,13 @@ export default function LoginPage() {
             
             <div className="pb-4">
               <div className="flex gap-2 mb-6">
-                <div className="h-1 w-4 bg-white/30 rounded-full"></div>
                 <div className="h-1 w-8 bg-white rounded-full"></div>
                 <div className="h-1 w-4 bg-white/30 rounded-full"></div>
+                <div className="h-1 w-4 bg-white/30 rounded-full"></div>
               </div>
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight tracking-tight">Master AI Intelligence</h2>
+              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight tracking-tight">Analyze Your Vision</h2>
               <p className="text-slate-300 text-base md:text-lg max-w-md leading-relaxed opacity-90">
-                Organize, test, and refine your prompt library with state-of-the-art AI insights. Welcome back.
+                Turn screenshots into high-performance prompts with our built-in OCR and analyzer. Join ZanZora today.
               </p>
             </div>
           </div>
@@ -98,24 +113,48 @@ export default function LoginPage() {
             {/* Switcher */}
             <div className="flex justify-center mb-10">
               <div className="bg-slate-800/50 p-1.5 rounded-2xl flex items-center border border-white/5 shadow-inner">
-                <button className="px-6 py-2 rounded-xl text-sm font-bold bg-violet-600 text-white shadow-lg shadow-violet-500/20 transition-all">
-                  Log In
-                </button>
                 <button 
-                  onClick={() => router.push('/signup')}
+                  onClick={() => router.push('/login')}
                   className="px-6 py-2 rounded-xl text-sm font-medium text-slate-400 hover:text-white transition-all"
                 >
+                  Log In
+                </button>
+                <button className="px-6 py-2 rounded-xl text-sm font-bold bg-violet-600 text-white shadow-lg shadow-violet-500/20 transition-all">
                   Sign Up
                 </button>
               </div>
             </div>
 
-            <div className="mb-8 text-center lg:text-left">
-              <h1 className="text-4xl font-bold text-white mb-3">Welcome Back</h1>
-              <p className="text-slate-500 text-sm md:text-base">Please enter your details to sign in to your library.</p>
+            <div className="mb-10 text-center lg:text-left text-white">
+              <h1 className="text-4xl font-bold mb-3">Create An Account</h1>
+              <p className="text-slate-500 text-sm md:text-base">Transform your prompt workflow with AI.</p>
             </div>
 
-            <form onSubmit={handleLogin} className="space-y-5">
+            <form onSubmit={handleSignup} className="space-y-5">
+              {/* ... existing fields ... */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="relative">
+                  <input
+                    type="text"
+                    required
+                    placeholder="First Name"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="w-full bg-slate-800/40 border border-slate-700 rounded-2xl px-5 py-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all text-sm"
+                  />
+                </div>
+                <div className="relative">
+                  <input
+                    type="text"
+                    required
+                    placeholder="Last Name"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="w-full bg-slate-800/40 border border-slate-700 rounded-2xl px-5 py-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all text-sm"
+                  />
+                </div>
+              </div>
+
               <div className="relative">
                 <Mail className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
                 <input
@@ -147,6 +186,25 @@ export default function LoginPage() {
                 </button>
               </div>
 
+              <div className="relative">
+                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  required
+                  placeholder="Confirm Password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full bg-slate-800/40 border border-slate-700 rounded-2xl pl-14 pr-12 py-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all text-sm"
+                />
+                <button 
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
+                >
+                  {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
+
               {error && (
                 <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-xl text-xs">
                   {error}
@@ -158,7 +216,7 @@ export default function LoginPage() {
                 disabled={loading}
                 className="w-full bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 text-white font-bold py-4 rounded-2xl shadow-xl shadow-violet-500/20 transition-all active:scale-[0.98] disabled:opacity-50"
               >
-                {loading ? "Signing in..." : "Log In"}
+                {loading ? "Creating Account..." : "Create an Account"}
               </button>
             </form>
 
@@ -194,11 +252,8 @@ export default function LoginPage() {
               </button>
             </div>
             
-            <p className="mt-8 text-center text-sm text-slate-500">
-              Don't have an account?{' '}
-              <Link href="/signup" className="text-violet-400 font-bold hover:underline">
-                Sign up for free
-              </Link>
+            <p className="mt-8 text-center text-xs text-slate-500 leading-relaxed">
+              By creating an account, you agree to our <Link href="/terms" className="text-violet-400 font-bold hover:underline">Terms of Service</Link> and <Link href="/privacy" className="text-violet-400 font-bold hover:underline">Privacy Policy</Link>.
             </p>
           </motion.div>
         </div>
