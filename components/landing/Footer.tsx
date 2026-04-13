@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { BrainCircuit } from 'lucide-react';
+import { CreatorSection } from '@/components/ui/CreatorSection';
 
 export function Footer() {
   return (
@@ -25,8 +26,12 @@ export function Footer() {
           </div>
         </div>
         
-        <div className="mt-12 text-center text-slate-600 text-sm">
-          © {new Date().getFullYear()} ZanZora. All rights reserved. Built for the future of AI.
+        <div className="mt-16 pt-8 border-t border-white/5 flex flex-col items-center gap-6">
+          <CreatorSection />
+          
+          <div className="text-slate-600 text-xs tracking-wide">
+            © {new Date().getFullYear()} ZanZora. All rights reserved. Built for the future of AI.
+          </div>
         </div>
       </div>
     </footer>

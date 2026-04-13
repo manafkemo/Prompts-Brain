@@ -9,6 +9,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { createClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/Navbar';
+import { CreatorSection } from '@/components/ui/CreatorSection';
 
 export default function DashboardPage() {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
@@ -105,6 +106,13 @@ export default function DashboardPage() {
         onClose={() => setIsModalOpen(false)}
         onAdded={(newPrompt) => setPrompts(prev => [newPrompt, ...prev])}
       />
+
+      <footer className="mt-20 pb-12 border-t border-white/5 pt-8">
+        <CreatorSection />
+        <div className="text-center text-slate-600 text-xs mt-4">
+          © {new Date().getFullYear()} ZanZora. Built by creators for creators.
+        </div>
+      </footer>
     </div>
   );
 }

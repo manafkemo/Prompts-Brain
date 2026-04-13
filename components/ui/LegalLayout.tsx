@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArrowLeft, BrainCircuit } from 'lucide-react';
+import { CreatorSection } from '@/components/ui/CreatorSection';
 
 interface LegalLayoutProps {
   title: string;
@@ -41,8 +42,11 @@ export function LegalLayout({ title, children }: LegalLayoutProps) {
         </div>
       </main>
 
-      <footer className="py-12 border-t border-slate-900 text-center text-slate-600 text-sm">
-        © {new Date().getFullYear()} ZanZora. All rights reserved.
+      <footer className="py-12 border-t border-slate-900 flex flex-col items-center gap-6">
+        <CreatorSection />
+        <div className="text-slate-600 text-xs tracking-wide">
+          © {new Date().getFullYear()} ZanZora. All rights reserved.
+        </div>
       </footer>
     </div>
   );
