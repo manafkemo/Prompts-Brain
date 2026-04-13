@@ -8,6 +8,7 @@ import { Plus, Search, BrainCircuit, LogOut } from 'lucide-react';
 import { Spinner } from '@/components/ui/Spinner';
 import { createClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import { Navbar } from '@/components/Navbar';
 
 export default function DashboardPage() {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
@@ -50,42 +51,9 @@ export default function DashboardPage() {
     return () => clearTimeout(timeout);
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push('/login');
-    router.refresh();
-  };
-
   return (
     <div className="min-h-screen bg-black">
-      {/* Navbar */}
-      <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-950/80 backdrop-blur supports-[backdrop-filter]:bg-slate-950/60">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <BrainCircuit className="h-6 w-6 text-violet-500" />
-            <span className="font-bold text-xl text-white tracking-tighter flex items-center gap-1">
-              Zan<span className="text-violet-500">Zora</span>
-            </span>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-full text-sm font-medium transition-all shadow-lg shadow-violet-500/20"
-            >
-              <Plus className="h-4 w-4" />
-              New Prompt
-            </button>
-            <button 
-              onClick={handleLogout}
-              className="text-slate-400 hover:text-white p-2 rounded-full hover:bg-slate-800 transition-colors"
-              title="Sign Out"
-            >
-              <LogOut className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
-      </header>
+      <Navbar onNewPrompt={() => setIsModalOpen(true)} />
 
       <main className="container mx-auto px-4 py-8">
         {/* Search & Filters */}

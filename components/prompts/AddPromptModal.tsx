@@ -7,6 +7,7 @@ import { Prompt } from '@/lib/types';
 import { Modal } from '@/components/ui/Modal';
 import { Spinner } from '@/components/ui/Spinner';
 import { Upload, X, Sparkles } from 'lucide-react';
+import { CreditLimitModal } from '@/components/ui/CreditLimitModal';
 
 interface AddPromptModalProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ export function AddPromptModal({ isOpen, onClose, onAdded }: AddPromptModalProps
   const [rawText, setRawText] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isLimitReached, setIsLimitReached] = useState(false);
 
   const handleClose = () => {
     setStep('input');
@@ -67,7 +69,14 @@ export function AddPromptModal({ isOpen, onClose, onAdded }: AddPromptModalProps
         body: JSON.stringify({ promptText: rawText })
       });
       
-      if (!aiRes.ok) throw new Error('AI Analysis failed');
+      if (!aiRes.ok) {
+        if (aiRes.status === 403) {
+          setIsLimitReached(true);
+          setStep('input');
+          return;
+        }
+        throw new Error('AI Analysis failed');
+      }
       const analysis = await aiRes.json();
 
       // 2. Save to Database
@@ -168,6 +177,11 @@ export function AddPromptModal({ isOpen, onClose, onAdded }: AddPromptModalProps
           </div>
         </div>
       )}
+
+      <CreditLimitModal 
+        isOpen={isLimitReached} 
+        onClose={() => setIsLimitReached(false)} 
+      />
     </Modal>
   );
 }

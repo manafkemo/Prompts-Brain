@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase';
-import { BrainCircuit, Mail, Lock, Eye, EyeOff, Github, Chrome, Apple } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { BrainCircuit, Mail, Lock, Eye, EyeOff, Github, Chrome, Facebook, X, AlertTriangle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function SignupPage() {
   const [firstName, setFirstName] = useState('');
@@ -17,11 +17,18 @@ export default function SignupPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showMaintenance, setShowMaintenance] = useState(false);
+  const [isEmailSent, setIsEmailSent] = useState(false);
   
   const router = useRouter();
   const supabase = createClient();
 
-  const handleSocialLogin = async (provider: 'google' | 'github' | 'apple') => {
+  const handleSocialLogin = async (provider: 'google' | 'github' | 'facebook') => {
+    if (provider === 'facebook') {
+      setShowMaintenance(true);
+      return;
+    }
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
@@ -44,10 +51,11 @@ export default function SignupPage() {
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
         data: {
           first_name: firstName,
           last_name: lastName,
@@ -59,8 +67,13 @@ export default function SignupPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      router.push('/dashboard');
-      router.refresh();
+      if (data.session) {
+        router.push('/dashboard');
+        router.refresh();
+      } else {
+        setIsEmailSent(true);
+        setLoading(false);
+      }
     }
   };
 
@@ -125,140 +138,220 @@ export default function SignupPage() {
               </div>
             </div>
 
-            <div className="mb-10 text-center lg:text-left text-white">
-              <h1 className="text-4xl font-bold mb-3">Create An Account</h1>
-              <p className="text-slate-500 text-sm md:text-base">Transform your prompt workflow with AI.</p>
-            </div>
-
-            <form onSubmit={handleSignup} className="space-y-5">
-              {/* ... existing fields ... */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="relative">
-                  <input
-                    type="text"
-                    required
-                    placeholder="First Name"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    className="w-full bg-slate-800/40 border border-slate-700 rounded-2xl px-5 py-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all text-sm"
-                  />
+            {isEmailSent ? (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-center py-8"
+              >
+                <div className="w-20 h-20 bg-violet-500/10 rounded-3xl flex items-center justify-center mb-6 mx-auto border border-violet-500/20">
+                  <Mail className="h-10 w-10 text-violet-400" />
                 </div>
-                <div className="relative">
-                  <input
-                    type="text"
-                    required
-                    placeholder="Last Name"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    className="w-full bg-slate-800/40 border border-slate-700 rounded-2xl px-5 py-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all text-sm"
-                  />
+                <h2 className="text-3xl font-bold text-white mb-4">Verify Your Email</h2>
+                <p className="text-slate-400 leading-relaxed mb-8">
+                  We've sent a verification link to <span className="text-violet-400 font-semibold">{email}</span>. 
+                  Please check your inbox and click the link to complete your registration.
+                </p>
+                <div className="space-y-4">
+                  <button 
+                    onClick={() => setIsEmailSent(false)}
+                    className="w-full py-4 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-2xl transition-all"
+                  >
+                    Back to Sign Up
+                  </button>
+                  <p className="text-xs text-slate-500">
+                    Didn't receive the email? Check your spam folder or contact support.
+                  </p>
                 </div>
-              </div>
-
-              <div className="relative">
-                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
-                <input
-                  type="email"
-                  required
-                  placeholder="Enter Your Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-slate-800/40 border border-slate-700 rounded-2xl pl-14 pr-5 py-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all text-sm"
-                />
-              </div>
-
-              <div className="relative">
-                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  required
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-slate-800/40 border border-slate-700 rounded-2xl pl-14 pr-12 py-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all text-sm"
-                />
-                <button 
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
-                >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
-              </div>
-
-              <div className="relative">
-                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
-                <input
-                  type={showConfirmPassword ? "text" : "password"}
-                  required
-                  placeholder="Confirm Password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full bg-slate-800/40 border border-slate-700 rounded-2xl pl-14 pr-12 py-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all text-sm"
-                />
-                <button 
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
-                >
-                  {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
-              </div>
-
-              {error && (
-                <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-xl text-xs">
-                  {error}
+              </motion.div>
+            ) : (
+              <>
+                <div className="mb-10 text-center lg:text-left text-white">
+                  <h1 className="text-4xl font-bold mb-3">Create An Account</h1>
+                  <p className="text-slate-500 text-sm md:text-base">Transform your prompt workflow with AI.</p>
                 </div>
-              )}
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 text-white font-bold py-4 rounded-2xl shadow-xl shadow-violet-500/20 transition-all active:scale-[0.98] disabled:opacity-50"
-              >
-                {loading ? "Creating Account..." : "Create an Account"}
-              </button>
-            </form>
+                <form onSubmit={handleSignup} className="space-y-5">
+                  {/* ... form content ... */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        required
+                        placeholder="First Name"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        className="w-full bg-slate-800/40 border border-slate-700 rounded-2xl px-5 py-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all text-sm"
+                      />
+                    </div>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        required
+                        placeholder="Last Name"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        className="w-full bg-slate-800/40 border border-slate-700 rounded-2xl px-5 py-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all text-sm"
+                      />
+                    </div>
+                  </div>
 
-            <div className="mt-8 flex items-center gap-4 text-slate-600">
-              <div className="h-[1px] flex-1 bg-slate-800"></div>
-              <span className="text-xs font-bold uppercase tracking-wider">Or</span>
-              <div className="h-[1px] flex-1 bg-slate-800"></div>
-            </div>
+                  <div className="relative">
+                    <Mail className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
+                    <input
+                      type="email"
+                      required
+                      placeholder="Enter Your Email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full bg-slate-800/40 border border-slate-700 rounded-2xl pl-14 pr-5 py-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all text-sm"
+                    />
+                  </div>
 
-            <div className="mt-8 grid grid-cols-3 gap-4">
-              <button 
-                onClick={() => handleSocialLogin('google')}
-                className="flex items-center justify-center p-4 bg-slate-800/40 border border-slate-700 rounded-2xl hover:bg-slate-800 transition-colors group"
-              >
-                <svg viewBox="0 0 24 24" className="w-5 h-5 transition-transform group-hover:scale-110">
-                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 12 5.38z" fill="#EA4335"/>
-                </svg>
-              </button>
-              <button 
-                onClick={() => handleSocialLogin('github')}
-                className="flex items-center justify-center p-4 bg-slate-800/40 border border-slate-700 rounded-2xl hover:bg-slate-800 transition-colors group"
-              >
-                <Github className="h-5 w-5 text-white fill-white transition-transform group-hover:scale-110" />
-              </button>
-              <button 
-                onClick={() => handleSocialLogin('apple')}
-                className="flex items-center justify-center p-4 bg-slate-800/40 border border-slate-700 rounded-2xl hover:bg-slate-800 transition-colors group"
-              >
-                <Apple className="h-5 w-5 text-white fill-white transition-transform group-hover:scale-110" />
-              </button>
-            </div>
-            
-            <p className="mt-8 text-center text-xs text-slate-500 leading-relaxed">
-              By creating an account, you agree to our <Link href="/terms" className="text-violet-400 font-bold hover:underline">Terms of Service</Link> and <Link href="/privacy" className="text-violet-400 font-bold hover:underline">Privacy Policy</Link>.
-            </p>
+                  <div className="relative">
+                    <Lock className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      required
+                      placeholder="Password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full bg-slate-800/40 border border-slate-700 rounded-2xl pl-14 pr-12 py-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all text-sm"
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
+                    >
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </div>
+
+                  <div className="relative">
+                    <Lock className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      required
+                      placeholder="Confirm Password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full bg-slate-800/40 border border-slate-700 rounded-2xl pl-14 pr-12 py-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all text-sm"
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white transition-colors"
+                    >
+                      {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </div>
+
+                  {error && (
+                    <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-xl text-xs">
+                      {error}
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 text-white font-bold py-4 rounded-2xl shadow-xl shadow-violet-500/20 transition-all active:scale-[0.98] disabled:opacity-50"
+                  >
+                    {loading ? "Creating Account..." : "Create an Account"}
+                  </button>
+                </form>
+
+                <div className="mt-8 flex items-center gap-4 text-slate-600">
+                  <div className="h-[1px] flex-1 bg-slate-800"></div>
+                  <span className="text-xs font-bold uppercase tracking-wider">Or</span>
+                  <div className="h-[1px] flex-1 bg-slate-800"></div>
+                </div>
+
+                <div className="mt-8 grid grid-cols-3 gap-4">
+                  <button 
+                    onClick={() => handleSocialLogin('google')}
+                    className="flex items-center justify-center p-4 bg-slate-800/40 border border-slate-700 rounded-2xl hover:bg-slate-800 transition-colors group"
+                  >
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 transition-transform group-hover:scale-110">
+                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                      <path d="M12 4.75c1.54 0 2.91.53 4 1.48l3-3C17.46 1.45 15.02 0 12 0 7.7 0 3.99 2.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    </svg>
+                  </button>
+                  <button 
+                    onClick={() => handleSocialLogin('github')}
+                    className="flex items-center justify-center p-4 bg-slate-800/40 border border-slate-700 rounded-2xl hover:bg-slate-800 transition-colors group"
+                  >
+                    <Github className="h-5 w-5 text-white fill-white transition-transform group-hover:scale-110" />
+                  </button>
+                  <button 
+                    onClick={() => handleSocialLogin('facebook')}
+                    className="flex items-center justify-center p-4 bg-slate-800/40 border border-slate-700 rounded-2xl hover:bg-slate-800 transition-colors group"
+                  >
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 transition-transform group-hover:scale-110">
+                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" fill="#1877F2"/>
+                    </svg>
+                  </button>
+                </div>
+                
+                <p className="mt-8 text-center text-xs text-slate-500 leading-relaxed">
+                  By creating an account, you agree to our <Link href="/terms" className="text-violet-400 font-bold hover:underline">Terms of Service</Link> and <Link href="/privacy" className="text-violet-400 font-bold hover:underline">Privacy Policy</Link>.
+                </p>
+              </>
+            )}
           </motion.div>
         </div>
 
       </motion.div>
+
+      {/* Maintenance Overlay */}
+      <AnimatePresence>
+        {showMaintenance && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="bg-slate-900 border border-white/10 p-8 rounded-[2rem] max-w-md w-full shadow-2xl relative overflow-hidden"
+            >
+              {/* Decorative background glow */}
+              <div className="absolute -top-24 -right-24 w-48 h-48 bg-violet-600/20 blur-[80px] rounded-full" />
+              <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-blue-600/20 blur-[80px] rounded-full" />
+              
+              <button 
+                onClick={() => setShowMaintenance(false)}
+                className="absolute top-6 right-6 p-2 rounded-full bg-slate-800/50 text-slate-400 hover:text-white hover:bg-slate-700 transition-all"
+              >
+                <X className="h-5 w-5" />
+              </button>
+
+              <div className="relative z-10 flex flex-col items-center text-center">
+                <div className="w-20 h-20 bg-violet-500/10 rounded-3xl flex items-center justify-center mb-6 border border-violet-500/20">
+                  <AlertTriangle className="h-10 w-10 text-violet-400" />
+                </div>
+                
+                <h2 className="text-2xl font-bold text-white mb-4">Face Problem</h2>
+                <p className="text-slate-400 leading-relaxed mb-8">
+                  We apologize, but we are facing a problem with our <span className="text-violet-400 font-semibold">provers</span> at the moment. We will solve it soon!
+                </p>
+                
+                <button 
+                  onClick={() => setShowMaintenance(false)}
+                  className="w-full py-4 bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 text-white font-bold rounded-2xl shadow-xl shadow-violet-500/20 transition-all active:scale-[0.98]"
+                >
+                  Understood
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

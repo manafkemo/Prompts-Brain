@@ -6,7 +6,9 @@ import { Badge } from '@/components/ui/Badge';
 import { ScoreBar } from '@/components/ui/ScoreBar';
 import { Spinner } from '@/components/ui/Spinner';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Copy, Trash2, Calendar, FileText, BrainCircuit, Wand2, Check, Palette, Sparkles } from 'lucide-react';
+import { ArrowLeft, Copy, Trash2, Calendar, FileText, BrainCircuit, Wand2, Check, Palette, Sparkles, User as UserIcon } from 'lucide-react';
+import { CreditLimitModal } from '@/components/ui/CreditLimitModal';
+import { Navbar } from '@/components/Navbar';
 
 export default function PromptDetailPage({
   params,
@@ -27,6 +29,7 @@ export default function PromptDetailPage({
   const [isGeneratingStyle, setIsGeneratingStyle] = useState(false);
   const [generatedStylePrompt, setGeneratedStylePrompt] = useState<string | null>(null);
   const [copiedStylePrompt, setCopiedStylePrompt] = useState(false);
+  const [isLimitReached, setIsLimitReached] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -90,6 +93,9 @@ export default function PromptDetailPage({
         const data = await res.json();
         setImprovedPrompt(data.improved_prompt);
       } else {
+        if (res.status === 403) {
+          setIsLimitReached(true);
+        }
         console.error('Failed to improve prompt');
       }
     } catch (error) {
@@ -123,6 +129,9 @@ export default function PromptDetailPage({
         const data = await res.json();
         setStyles(data.styles);
       } else {
+        if (res.status === 403) {
+          setIsLimitReached(true);
+        }
         console.error('Failed to suggest styles');
       }
     } catch (error) {
@@ -147,6 +156,9 @@ export default function PromptDetailPage({
         const data = await res.json();
         setGeneratedStylePrompt(data.generated_prompt);
       } else {
+        if (res.status === 403) {
+          setIsLimitReached(true);
+        }
         console.error('Failed to generate style prompt');
       }
     } catch (error) {
@@ -176,38 +188,22 @@ export default function PromptDetailPage({
 
   return (
     <div className="min-h-screen bg-black text-slate-100">
-      {/* Header */}
-      <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-950/80 backdrop-blur supports-[backdrop-filter]:bg-slate-950/60">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between max-w-5xl">
-          <button 
-            onClick={() => router.push('/dashboard')}
-            className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>Back to DB</span>
-          </button>
-          
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handleCopy}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white transition-colors border border-slate-700 text-sm font-medium"
-            >
-              {copied ? <span className="text-green-400">Copied!</span> : <><Copy className="w-4 h-4" /> Copy Prompt</>}
-            </button>
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="p-1.5 rounded-lg text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors focus:outline-none"
-              title="Delete prompt"
-            >
-              <Trash2 className="h-5 w-5" />
-            </button>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       <main className="container mx-auto px-4 py-8 max-w-5xl">
+        <button 
+          onClick={() => router.push('/dashboard')}
+          className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-6"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back to Library</span>
+        </button>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          <CreditLimitModal 
+            isOpen={isLimitReached} 
+            onClose={() => setIsLimitReached(false)} 
+          />
           
           {/* Main Content (Left col) */}
           <div className="lg:col-span-2 space-y-6">

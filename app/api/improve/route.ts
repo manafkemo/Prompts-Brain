@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { improvePrompt } from '@/lib/gemini';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
+import { useCredit } from '@/lib/credits';
 
 export async function POST(request: Request) {
   try {
@@ -12,6 +13,12 @@ export async function POST(request: Request) {
     // While improving doesn't require saving, we authenticate to prevent abuse
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Check and deduct credits
+    const { success, error: creditError } = await useCredit(supabase);
+    if (!success) {
+      return NextResponse.json({ error: creditError || 'Insufficient credits' }, { status: 403 });
     }
 
     const body = await request.json();
