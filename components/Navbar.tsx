@@ -98,10 +98,10 @@ export function Navbar({ onNewPrompt }: NavbarProps) {
         
         <div className="flex items-center gap-3 md:gap-6">
           {/* Credit Indicator */}
-          <div className="hidden sm:flex items-center gap-2 px-4 py-1.5 bg-violet-500/10 border border-violet-500/20 rounded-full">
+          <div className="flex items-center gap-1.5 px-2 sm:px-4 py-1.5 bg-violet-500/10 border border-violet-500/20 rounded-full">
             <Sparkles className="h-3.5 w-3.5 text-violet-400" />
             <span className="text-sm font-medium text-slate-300">
-              <span className="text-violet-400 font-bold">{credits ?? '...'}</span> Credits
+              <span className="text-violet-400 font-bold">{credits ?? '...'}</span> <span className="hidden sm:inline">Credits</span>
             </span>
           </div>
 

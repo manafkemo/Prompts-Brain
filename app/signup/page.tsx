@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase';
-import { BrainCircuit, Mail, Lock, Eye, EyeOff, Github, Chrome, Facebook, X, AlertTriangle } from 'lucide-react';
+import { BrainCircuit, Mail, Lock, Eye, EyeOff, Github, Facebook, X, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function SignupPage() {
@@ -172,7 +172,6 @@ export default function SignupPage() {
                 </div>
 
                 <form onSubmit={handleSignup} className="space-y-5">
-                  {/* ... form content ... */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="relative">
                       <input
