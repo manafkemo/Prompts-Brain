@@ -69,15 +69,16 @@ export function AddPromptModal({ isOpen, onClose, onAdded }: AddPromptModalProps
         body: JSON.stringify({ promptText: rawText })
       });
       
+      const aiData = await aiRes.json();
+
       if (!aiRes.ok) {
         if (aiRes.status === 403) {
           setIsLimitReached(true);
           setStep('input');
           return;
         }
-        throw new Error('AI Analysis failed');
+        throw new Error(aiData.error || 'AI Analysis failed');
       }
-      const analysis = await aiRes.json();
 
       // 2. Save to Database
       const saveRes = await fetch('/api/prompts', {
@@ -86,15 +87,24 @@ export function AddPromptModal({ isOpen, onClose, onAdded }: AddPromptModalProps
         body: JSON.stringify({
           original_prompt: rawText,
           extracted_text: file ? rawText : null,
-          image_url: null, // MVP: skipping storage upload for now to keep it simple
-          ...analysis
+          image_url: null, // MVP: skipping storage upload for now
+          ...aiData
         })
       });
 
-      if (!saveRes.ok) throw new Error('Failed to save to database');
-      const savedPrompt = await saveRes.json();
+      const saveData = await saveRes.json();
 
-      onAdded(savedPrompt);
+      if (!saveRes.ok) {
+        if (saveRes.status === 403) {
+          setIsLimitReached(true);
+          setError(saveData.error);
+          setStep('input');
+          return;
+        }
+        throw new Error(saveData.error || 'Failed to save to database');
+      }
+
+      onAdded(saveData);
       handleClose();
     } catch (err: any) {
       setError(err.message || 'Something went wrong');

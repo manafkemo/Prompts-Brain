@@ -16,7 +16,11 @@ export async function POST(request: Request) {
     // Check and deduct credits
     const { success, error: creditError } = await useCredit(supabase);
     if (!success) {
-      return NextResponse.json({ error: creditError || 'Insufficient credits' }, { status: 403 });
+      console.error('Credit deduction failed for user:', user.id, creditError);
+      return NextResponse.json(
+        { error: creditError || 'You have no more credits to use.' },
+        { status: 403 }
+      );
     }
 
     const body = await request.json();

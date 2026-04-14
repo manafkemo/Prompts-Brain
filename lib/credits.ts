@@ -11,13 +11,13 @@ export async function useCredit(supabase: SupabaseClient) {
   const { data: success, error } = await supabase.rpc('decrement_credits');
 
   if (error) {
-    console.error('Credit System Error:', error);
-    return { success: false, error: error.message };
+    console.error('Credit System RPC Error:', error.message, error.details, error.hint);
+    return { success: false, error: `Credit system error: ${error.message}` };
   }
 
   // If success is false, it means credits were <= 0
   if (!success) {
-    return { success: false, error: 'Insufficient credits' };
+    return { success: false, error: 'You have no more credits to use. Premium plans coming soon!' };
   }
 
   return { success: true, error: null };

@@ -27,7 +27,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json(analysis);
   } catch (error: any) {
-    console.error('Gemini Analysis Error:', error);
+    console.error('Gemini Analysis Error:', error?.message || error);
+    console.error('Full error:', JSON.stringify(error, null, 2));
     return NextResponse.json(
       { error: error.message || 'Failed to analyze prompt' },
       { status: 500 }
