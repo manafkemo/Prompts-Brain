@@ -2,13 +2,13 @@ import { Prompt } from "@/lib/types";
 import { Badge } from "@/components/ui/Badge";
 import { Copy, ImageIcon, Code, Mic, Video, HelpCircle } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, memo } from "react";
 
 interface PromptCardProps {
   prompt: Prompt;
 }
 
-export function PromptCard({ prompt }: PromptCardProps) {
+export const PromptCard = memo(function PromptCard({ prompt }: PromptCardProps) {
   const [copied, setCopied] = useState(false);
 
   const TypeIcon = () => {
@@ -89,4 +89,4 @@ export function PromptCard({ prompt }: PromptCardProps) {
       </div>
     </Link>
   );
-}
+});

@@ -19,7 +19,7 @@ export async function GET(
 
     const { data, error } = await supabase
       .from('prompts')
-      .select('*')
+      .select('id, created_at, original_prompt, type, tags, quality_score, creativity_score, subject, description, style, extracted_text')
       .eq('id', id)
       .single();
 

@@ -11,7 +11,14 @@ const GeminiSchema = z.object({
   tags: z.array(z.string()),
 });
 
+const analysisCache = new Map<string, GeminiAnalysis>();
+
 export async function analyzePrompt(promptText: string): Promise<GeminiAnalysis> {
+  // Check cache first
+  if (analysisCache.has(promptText)) {
+    return analysisCache.get(promptText)!;
+  }
+
   const { GoogleGenerativeAI } = await import('@google/generative-ai');
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
   const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
@@ -42,7 +49,16 @@ Prompt:
 ${promptText}
 """`;
 
-  const result = await model.generateContent(instruction);
+  // Add timeout protection
+  const timeoutPromise = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('AI Request Timeout')), 30000)
+  );
+
+  const result: any = await Promise.race([
+    model.generateContent(instruction),
+    timeoutPromise
+  ]);
+
   const text = result.response.text();
 
   // Extract JSON from response (strip any markdown code fences)
@@ -53,6 +69,10 @@ ${promptText}
 
   const parsed = JSON.parse(jsonMatch[0]);
   const validated = GeminiSchema.parse(parsed);
+  
+  // Save to cache
+  analysisCache.set(promptText, validated);
+  
   return validated;
 }
 

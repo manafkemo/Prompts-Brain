@@ -1,0 +1,16 @@
+{
+  "name": "ZanZora",
+  "short_name": "ZanZora",
+  "description": "Turn your prompts into a powerful AI brain.",
+  "theme_color": "#0f172a",
+  "background_color": "#0f172a",
+  "display": "standalone",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/brain.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

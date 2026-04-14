@@ -32,7 +32,12 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Paths that don't require authentication
-  const isPublicPath = pathname === '/' || pathname === '/login' || pathname === '/signup' || pathname === '/auth/callback';
+  const isPublicPath = 
+    pathname === '/' || 
+    pathname === '/login' || 
+    pathname === '/signup' || 
+    pathname === '/auth/callback' ||
+    pathname === '/manifest.json';
 
   // Redirect unauthenticated users to login, except for the landing page
   if (!user && !isPublicPath) {

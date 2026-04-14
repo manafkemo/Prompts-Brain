@@ -1,29 +1,29 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { Prompt } from '@/lib/types';
 import { PromptCard } from '@/components/prompts/PromptCard';
-import { AddPromptModal } from '@/components/prompts/AddPromptModal';
-import { Plus, Search, BrainCircuit, LogOut } from 'lucide-react';
-import { Spinner } from '@/components/ui/Spinner';
+import { PromptCardSkeleton } from '@/components/prompts/PromptCardSkeleton';
+import { Plus, Search, BrainCircuit } from 'lucide-react';
 import { createClient } from '@/lib/supabase';
-import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/Navbar';
 import { CreatorSection } from '@/components/ui/CreatorSection';
+import dynamic from 'next/dynamic';
+
+// Lazy load the modal to reduce initial bundle size
+const AddPromptModal = dynamic(() => import('@/components/prompts/AddPromptModal').then(mod => mod.AddPromptModal), {
+  ssr: false,
+});
 
 export default function DashboardPage() {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const router = useRouter();
   const supabase = createClient();
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    fetchPrompts();
-  }, []);
-
-  const fetchPrompts = async (searchQuery?: string) => {
+  const fetchPrompts = useCallback(async (searchQuery?: string) => {
     setLoading(true);
     let url = '/api/prompts';
     if (searchQuery) {
@@ -41,15 +41,24 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchPrompts();
+  }, [fetchPrompts]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
-    // basic debounce
-    const timeout = setTimeout(() => {
-      fetchPrompts(e.target.value);
+    const value = e.target.value;
+    setSearch(value);
+    
+    // Clear previous timeout for better debouncing
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    searchTimeoutRef.current = setTimeout(() => {
+      fetchPrompts(value);
     }, 500);
-    return () => clearTimeout(timeout);
   };
 
   return (
@@ -73,8 +82,10 @@ export default function DashboardPage() {
 
         {/* Content grid */}
         {loading ? (
-          <div className="flex justify-center py-20">
-            <Spinner className="h-8 w-8 text-violet-500" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <PromptCardSkeleton key={i} />
+            ))}
           </div>
         ) : prompts.length === 0 ? (
           <div className="text-center py-32 glass-panel rounded-2xl mx-auto max-w-2xl border-dashed">
@@ -100,12 +111,14 @@ export default function DashboardPage() {
         )}
       </main>
 
-      {/* Add Prompt Modal */}
-      <AddPromptModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)}
-        onAdded={(newPrompt) => setPrompts(prev => [newPrompt, ...prev])}
-      />
+      {/* Add Prompt Modal - Rendered only when needed */}
+      {isModalOpen && (
+        <AddPromptModal 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)}
+          onAdded={(newPrompt) => setPrompts(prev => [newPrompt, ...prev])}
+        />
+      )}
 
       <footer className="mt-20 pb-12 border-t border-white/5 pt-8">
         <CreatorSection />
