@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase';
 import { Navbar } from '@/components/Navbar';
 import { CreatorSection } from '@/components/ui/CreatorSection';
 import dynamic from 'next/dynamic';
+import { DeleteConfirmationModal } from '@/components/prompts/DeleteConfirmationModal';
 
 // Lazy load the modal to reduce initial bundle size
 const AddPromptModal = dynamic(() => import('@/components/prompts/AddPromptModal').then(mod => mod.AddPromptModal), {
@@ -20,6 +21,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [promptToDelete, setPromptToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const supabase = createClient();
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -59,6 +62,31 @@ export default function DashboardPage() {
     searchTimeoutRef.current = setTimeout(() => {
       fetchPrompts(value);
     }, 500);
+  };
+
+  const handleDeletePrompt = (id: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setPromptToDelete(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!promptToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/prompts/${promptToDelete}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        setPrompts(prev => prev.filter(p => p.id !== promptToDelete));
+        setPromptToDelete(null);
+      }
+    } catch (error) {
+      console.error('Failed to delete prompt', error);
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -105,7 +133,11 @@ export default function DashboardPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {prompts.map(prompt => (
-              <PromptCard key={prompt.id} prompt={prompt} />
+              <PromptCard 
+                key={prompt.id} 
+                prompt={prompt} 
+                onDelete={handleDeletePrompt}
+              />
             ))}
           </div>
         )}
@@ -119,6 +151,13 @@ export default function DashboardPage() {
           onAdded={(newPrompt) => setPrompts(prev => [newPrompt, ...prev])}
         />
       )}
+
+      <DeleteConfirmationModal 
+        isOpen={!!promptToDelete}
+        onClose={() => setPromptToDelete(null)}
+        onConfirm={confirmDelete}
+        isDeleting={isDeleting}
+      />
 
       <footer className="mt-20 pb-12 border-t border-white/5 pt-8">
         <CreatorSection />

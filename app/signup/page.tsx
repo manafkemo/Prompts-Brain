@@ -87,7 +87,7 @@ export default function SignupPage() {
       >
         
         {/* Left Side - Image/Hero */}
-        <div className="lg:w-[45%] relative overflow-hidden flex flex-col min-h-[400px] lg:min-h-0">
+        <div className="hidden lg:flex lg:w-[45%] relative overflow-hidden flex-col">
           <img 
             src="/signup-hero.png" 
             alt="ZanZora Hero" 

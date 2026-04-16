@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Copy, Trash2, Calendar, FileText, BrainCircuit, Wand2, Check, Palette, Sparkles, User as UserIcon } from 'lucide-react';
 import { CreditLimitModal } from '@/components/ui/CreditLimitModal';
 import { Navbar } from '@/components/Navbar';
+import { DeleteConfirmationModal } from '@/components/prompts/DeleteConfirmationModal';
 
 export default function PromptDetailPage({
   params,
@@ -30,6 +31,7 @@ export default function PromptDetailPage({
   const [generatedStylePrompt, setGeneratedStylePrompt] = useState<string | null>(null);
   const [copiedStylePrompt, setCopiedStylePrompt] = useState(false);
   const [isLimitReached, setIsLimitReached] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -61,9 +63,11 @@ export default function PromptDetailPage({
     }
   };
 
-  const handleDelete = async () => {
-    if (!confirm('Are you sure you want to delete this prompt?')) return;
-    
+  const handleDelete = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
     setDeleting(true);
     try {
       const res = await fetch(`/api/prompts/${resolvedParams.id}`, {
@@ -76,6 +80,7 @@ export default function PromptDetailPage({
     } catch (error) {
       console.error('Failed to delete', error);
       setDeleting(false);
+      setIsDeleteModalOpen(false);
     }
   };
 
@@ -191,13 +196,24 @@ export default function PromptDetailPage({
       <Navbar />
 
       <main className="container mx-auto px-4 py-8 max-w-5xl">
-        <button 
-          onClick={() => router.push('/dashboard')}
-          className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-6"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back to Library</span>
-        </button>
+        <div className="flex items-center justify-between mb-6">
+          <button 
+            onClick={() => router.push('/dashboard')}
+            className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Back to Library</span>
+          </button>
+
+          <button
+            onClick={handleDelete}
+            disabled={deleting}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white transition-all disabled:opacity-50 font-medium"
+          >
+            <Trash2 className="h-4 w-4" />
+            <span>{deleting ? 'Deleting...' : 'Delete Prompt'}</span>
+          </button>
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           <CreditLimitModal 
@@ -433,6 +449,12 @@ export default function PromptDetailPage({
           
         </div>
       </main>
+      <DeleteConfirmationModal 
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        isDeleting={deleting}
+      />
     </div>
   );
 }

@@ -1,14 +1,15 @@
 import { Prompt } from "@/lib/types";
 import { Badge } from "@/components/ui/Badge";
-import { Copy, ImageIcon, Code, Mic, Video, HelpCircle } from "lucide-react";
+import { Copy, ImageIcon, Code, Mic, Video, HelpCircle, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useState, memo } from "react";
 
 interface PromptCardProps {
   prompt: Prompt;
+  onDelete?: (id: string, e: React.MouseEvent) => void;
 }
 
-export const PromptCard = memo(function PromptCard({ prompt }: PromptCardProps) {
+export const PromptCard = memo(function PromptCard({ prompt, onDelete }: PromptCardProps) {
   const [copied, setCopied] = useState(false);
 
   const TypeIcon = () => {
@@ -45,13 +46,25 @@ export const PromptCard = memo(function PromptCard({ prompt }: PromptCardProps) 
               </Badge>
             </div>
             
-            <button 
-              onClick={handleCopy}
-              className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-colors focus:outline-none"
-              title="Copy original prompt"
-            >
-              {copied ? <span className="text-xs font-semibold text-green-400">Copied!</span> : <Copy className="w-4 h-4" />}
-            </button>
+            <div className="flex items-center gap-1">
+              <button 
+                onClick={handleCopy}
+                className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition-colors focus:outline-none"
+                title="Copy original prompt"
+              >
+                {copied ? <span className="text-xs font-semibold text-green-400">Copied!</span> : <Copy className="w-4 h-4" />}
+              </button>
+
+              {onDelete && (
+                <button 
+                  onClick={(e) => onDelete(prompt.id, e)}
+                  className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-md transition-colors focus:outline-none"
+                  title="Delete prompt"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           </div>
 
           <h3 className="text-lg font-bold text-white mb-2 line-clamp-1">
