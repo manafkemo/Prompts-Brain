@@ -1,0 +1,13 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /prompt
+Disallow: /admin
+Disallow: /api
+
+# Host
+Host: https://zanzora.com
+
+# Sitemaps
+Sitemap: https://zanzora.com/sitemap.xml

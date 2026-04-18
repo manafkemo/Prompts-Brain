@@ -21,6 +21,7 @@ export async function GET(
       .from('prompts')
       .select('id, created_at, original_prompt, type, tags, quality_score, creativity_score, subject, description, style, extracted_text')
       .eq('id', id)
+      .eq('user_id', user.id)
       .single();
 
     if (error) throw error;
@@ -55,7 +56,8 @@ export async function DELETE(
     const { error } = await supabase
       .from('prompts')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .eq('user_id', user.id);
 
     if (error) throw error;
 

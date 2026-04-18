@@ -155,6 +155,10 @@ export default function LoginPage() {
                 Sign up for free
               </Link>
             </p>
+
+            <p className="mt-8 text-center text-xs text-slate-500 leading-relaxed">
+              By using ZanZora, you agree to our <Link href="/terms" className="text-violet-400 font-bold hover:underline">Terms of Service</Link> and <Link href="/privacy" className="text-violet-400 font-bold hover:underline">Privacy Policy</Link>.
+            </p>
           </motion.div>
         </div>
 

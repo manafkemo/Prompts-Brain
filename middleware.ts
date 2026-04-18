@@ -37,17 +37,22 @@ export async function middleware(request: NextRequest) {
     pathname === '/login' || 
     pathname === '/signup' || 
     pathname === '/auth/callback' ||
+    pathname === '/privacy' ||
+    pathname === '/terms' ||
     pathname === '/manifest.json';
 
-  // Redirect unauthenticated users to login, except for the landing page
+  const isLegalPath = pathname === '/privacy' || pathname === '/terms';
+
+  // Redirect unauthenticated users to login, except for public paths
   if (!user && !isPublicPath) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = '/login';
     return NextResponse.redirect(loginUrl);
   }
 
-  // Redirect authenticated users away from public-only pages (/login and /)
-  if (user && isPublicPath) {
+  // Redirect authenticated users away from auth pages (login, signup, landing)
+  // But allow them to see legal paths
+  if (user && isPublicPath && !isLegalPath) {
     const dashboardUrl = request.nextUrl.clone();
     dashboardUrl.pathname = '/dashboard';
     return NextResponse.redirect(dashboardUrl);

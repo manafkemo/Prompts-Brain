@@ -4,19 +4,56 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Cookie, X } from 'lucide-react';
 
+const CONSENT_KEY = 'zanzora-cookie-consent';
+const IS_DEV = process.env.NODE_ENV === 'development';
+
 export function CookieConsent() {
   const [isVisible, setIsVisible] = useState(false);
 
+  // Helper for safe storage access
+  const safeGet = () => {
+    try {
+      const value = localStorage.getItem(CONSENT_KEY);
+      if (IS_DEV) console.log(`[CookieAudit] Reading storage:`, value);
+      return value;
+    } catch (err) {
+      console.warn('[CookieAudit] localStorage blocked or unavailable:', err);
+      return null;
+    }
+  };
+
+  const safeSet = (value: string | null) => {
+    try {
+      if (value === null) {
+        localStorage.removeItem(CONSENT_KEY);
+        if (IS_DEV) console.log(`[CookieAudit] Storage cleared`);
+      } else {
+        localStorage.setItem(CONSENT_KEY, value);
+        if (IS_DEV) console.log(`[CookieAudit] Storage saved:`, value);
+      }
+    } catch (err) {
+      console.error('[CookieAudit] Failed to save to localStorage:', err);
+    }
+  };
+
   useEffect(() => {
-    const consent = localStorage.getItem('zanzora-cookie-consent');
+    const consent = safeGet();
     if (!consent) {
+      if (IS_DEV) console.log('[CookieAudit] No consent found, showing banner');
       setIsVisible(true);
     }
   }, []);
 
   const handleChoice = (choice: 'accepted' | 'rejected') => {
-    localStorage.setItem('zanzora-cookie-consent', choice);
+    if (IS_DEV) console.log(`[CookieAudit] User choice: ${choice}`);
+    safeSet(choice);
     setIsVisible(false);
+  };
+
+  const handleReset = () => {
+    if (IS_DEV) console.log('[CookieAudit] Manually resetting cookies...');
+    safeSet(null);
+    setIsVisible(true);
   };
 
   return (
@@ -56,6 +93,17 @@ export function CookieConsent() {
             </div>
           </div>
         </motion.div>
+      )}
+
+      {/* Dev-only Reset Button */}
+      {IS_DEV && !isVisible && (
+        <button
+          onClick={handleReset}
+          className="fixed bottom-4 left-4 z-[101] flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-400 hover:bg-red-500/20 transition-all opacity-50 hover:opacity-100"
+        >
+          <X size={12} />
+          RESET COOKIES (DEV)
+        </button>
       )}
     </AnimatePresence>
   );

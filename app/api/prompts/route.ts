@@ -66,6 +66,7 @@ export async function GET(request: Request) {
     let query = supabase
       .from('prompts')
       .select('id, created_at, original_prompt, type, tags, quality_score, creativity_score, subject, description')
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
     if (search) {

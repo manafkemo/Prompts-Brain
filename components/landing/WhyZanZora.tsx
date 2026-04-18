@@ -2,8 +2,6 @@
 
 import { motion } from 'framer-motion';
 import { CheckCircle2 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
-import * as THREE from 'three';
 import Image from 'next/image';
 
 
@@ -15,44 +13,11 @@ const values = [
 ];
 
 export function WhyZanZora() {
-  const vantaRef = useRef<HTMLDivElement>(null);
-  const [vantaEffect, setVantaEffect] = useState<any>(null);
-
-  useEffect(() => {
-    let effect: any = null;
-    const initVanta = async () => {
-      if (!vantaEffect && vantaRef.current) {
-        try {
-          // @ts-ignore
-          const vantaModule = await import('vanta/dist/vanta.net.min');
-          const VantaNet = vantaModule.default || vantaModule;
-          effect = VantaNet({
-            el: vantaRef.current,
-            THREE: THREE,
-            color: 0x8b5cf6, // Violet 500
-            backgroundColor: 0x000000, 
-            points: 12.00,
-            maxDistance: 22.00,
-            spacing: 18.00,
-            showDots: true
-          });
-          setVantaEffect(effect);
-        } catch (err) {
-          console.error("Vanta initialization failed", err);
-        }
-      }
-    };
-    initVanta();
-    
-    return () => {
-      if (effect) effect.destroy();
-    };
-  }, [vantaEffect]);
-
-
   return (
-    <section ref={vantaRef} className="py-24 relative overflow-hidden min-h-[600px] flex items-center">
-      <div className="absolute inset-0 bg-black/50 z-0 backdrop-blur-[2px]" />
+    <section className="py-24 relative overflow-hidden flex items-center">
+      {/* Reverted Background: Subtle gradient glow instead of animated plexus */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-[500px] bg-violet-600/10 blur-[120px] rounded-full -z-10" />
+      
       <div className="container mx-auto max-w-6xl px-4 relative z-10">
         <div className="flex flex-col lg:flex-row items-center gap-16">
           <motion.div 

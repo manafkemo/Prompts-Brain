@@ -10,6 +10,7 @@ import { Navbar } from '@/components/Navbar';
 import { CreatorSection } from '@/components/ui/CreatorSection';
 import dynamic from 'next/dynamic';
 import { DeleteConfirmationModal } from '@/components/prompts/DeleteConfirmationModal';
+import { FeedbackButton } from '@/components/ui/FeedbackButton';
 
 // Lazy load the modal to reduce initial bundle size
 const AddPromptModal = dynamic(() => import('@/components/prompts/AddPromptModal').then(mod => mod.AddPromptModal), {
@@ -165,6 +166,8 @@ export default function DashboardPage() {
           © {new Date().getFullYear()} ZanZora. Built by creators for creators.
         </div>
       </footer>
+
+      <FeedbackButton />
     </div>
   );
 }
