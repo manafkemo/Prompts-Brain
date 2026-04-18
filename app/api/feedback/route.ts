@@ -43,11 +43,16 @@ export async function POST(request: Request) {
     const chatId = process.env.TELEGRAM_CHAT_ID;
 
     if (botToken && chatId) {
-      // Escape special characters for Markdown if needed, but for simple text it's usually fine
-      const message = `🚀 *New Feedback Received (#${feedbackNumber})*\n\n` +
-                      `📧 *User:* ${user.email}\n` +
-                      `💬 *Message:* ${content.trim()}\n\n` +
-                      `📅 *Date:* ${new Date().toLocaleString()}`;
+      // Escape HTML characters to prevent breaking the HTML parser
+      const safeContent = content.trim()
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+        
+      const message = `🚀 <b>New Feedback Received (#${feedbackNumber})</b>\n\n` +
+                      `📧 <b>User:</b> ${user.email}\n` +
+                      `💬 <b>Message:</b> ${safeContent}\n\n` +
+                      `📅 <b>Date:</b> ${new Date().toLocaleString()}`;
 
       try {
         const telegramRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
@@ -56,7 +61,7 @@ export async function POST(request: Request) {
           body: JSON.stringify({
             chat_id: chatId,
             text: message,
-            parse_mode: 'Markdown',
+            parse_mode: 'HTML',
           }),
         });
 
