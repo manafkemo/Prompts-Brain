@@ -30,9 +30,18 @@ export const PromptCard = memo(function PromptCard({ prompt, onDelete }: PromptC
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    e.dataTransfer.setData('text/plain', prompt.id);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
   return (
     <Link href={`/prompt/${prompt.id}`}>
-      <div className="glass-panel group relative overflow-hidden rounded-xl p-5 hover:border-violet-500/50 hover:shadow-violet-900/20 transition-all duration-300">
+      <div 
+        draggable
+        onDragStart={handleDragStart}
+        className="glass-panel group relative overflow-hidden rounded-xl p-5 hover:border-violet-500/50 hover:shadow-violet-900/20 transition-all duration-300"
+      >
         
         {/* Subtle gradient background on hover */}
         <div className="absolute inset-0 bg-gradient-to-br from-violet-500/0 via-violet-500/0 to-violet-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -90,11 +99,11 @@ export const PromptCard = memo(function PromptCard({ prompt, onDelete }: PromptC
             <div className="flex gap-2">
               <div className="text-center">
                 <div className="text-xs text-slate-500">Qual</div>
-                <div className="text-sm font-bold text-violet-400">{prompt.quality_score}</div>
+                <div className="text-sm font-bold text-violet-400 font-en-nums">{prompt.quality_score}</div>
               </div>
               <div className="text-center">
                 <div className="text-xs text-slate-500">Crea</div>
-                <div className="text-sm font-bold text-emerald-400">{prompt.creativity_score}</div>
+                <div className="text-sm font-bold text-emerald-400 font-en-nums">{prompt.creativity_score}</div>
               </div>
             </div>
           </div>

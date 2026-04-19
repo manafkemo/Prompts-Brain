@@ -14,7 +14,7 @@ export function ScoreBar({ score, label }: ScoreBarProps) {
     <div className="w-full">
       <div className="flex justify-between items-center mb-1">
         <span className="text-xs font-medium text-slate-400">{label}</span>
-        <span className="text-xs font-bold text-slate-200">{score}/10</span>
+        <span className="text-xs font-bold text-slate-200 font-en-nums">{score}/10</span>
       </div>
       <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden relative">
         <div 

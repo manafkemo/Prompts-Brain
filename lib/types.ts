@@ -13,6 +13,14 @@ export interface Prompt {
   creativity_score: number;
   tags: string[];
   created_at: string;
+  collection_id?: string | null;
+}
+
+export interface Collection {
+  id: string;
+  user_id: string;
+  name: string;
+  created_at: string;
 }
 
 export interface GeminiAnalysis {

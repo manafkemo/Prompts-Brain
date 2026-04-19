@@ -70,3 +70,9 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(148, 163, 184, 1);
 }
+
+/* Force English/Western Numerals */
+.font-en-nums {
+  font-variant-numeric: lining-nums tabular-nums;
+  font-feature-settings: "lnum" 1, "tnum" 1;
+}
