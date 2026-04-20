@@ -33,6 +33,7 @@ export default function DashboardPage() {
   const [collectionToDelete, setCollectionToDelete] = useState<Collection | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [dragOverFolder, setDragOverFolder] = useState<string | null>(null);
+  const [draftPrompt, setDraftPrompt] = useState<string | undefined>(undefined);
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -43,6 +44,14 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchCollections();
     fetchPrompts();
+
+    // Check for draft prompt from AI Tools Matchmaker
+    const draft = localStorage.getItem('draft_prompt');
+    if (draft) {
+      setDraftPrompt(draft);
+      setIsModalOpen(true);
+      localStorage.removeItem('draft_prompt');
+    }
   }, []);
 
   const fetchCollections = async () => {
@@ -316,6 +325,7 @@ export default function DashboardPage() {
       {isModalOpen && (
         <AddPromptModal 
           isOpen={isModalOpen} 
+          initialPrompt={draftPrompt}
           onClose={() => setIsModalOpen(false)}
           onAdded={(newPrompt) => {
             setPrompts(prev => [newPrompt, ...prev]);

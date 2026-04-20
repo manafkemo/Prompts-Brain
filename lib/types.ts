@@ -33,6 +33,24 @@ export interface GeminiAnalysis {
   tags: string[];
 }
 
+export interface Tool {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  pricing: string;
+  url: string;
+  tags: string[];
+  created_at: string;
+}
+
+export interface UserSavedTool {
+  id: string;
+  user_id: string;
+  tool_id: string;
+  created_at: string;
+}
+
 export interface AddPromptPayload {
   original_prompt: string;
   extracted_text?: string | null;

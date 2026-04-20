@@ -89,12 +89,34 @@ export function Navbar({ onNewPrompt }: NavbarProps) {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-950/80 backdrop-blur supports-[backdrop-filter]:bg-slate-950/60">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/dashboard" className="flex items-center gap-2 group">
-          <BrainCircuit className="h-6 w-6 text-violet-500 transition-transform group-hover:scale-110" />
-          <span className="font-bold text-xl text-white tracking-tighter flex items-center gap-1">
-            Zan<span className="text-violet-500">Zora</span>
-          </span>
-        </Link>
+        <div className="flex items-center gap-6">
+          <Link href="/dashboard" className="flex items-center gap-2 group mr-2">
+            <BrainCircuit className="h-6 w-6 text-violet-500 transition-transform group-hover:scale-110" />
+            <span className="font-bold text-xl text-white tracking-tighter flex items-center gap-1">
+              Zan<span className="text-violet-500">Zora</span>
+            </span>
+          </Link>
+          <div className="h-6 w-[1px] bg-slate-800 hidden md:block"></div>
+          
+          <div className="hidden md:flex items-center gap-6">
+            <Link 
+              href="/dashboard" 
+              className={`font-medium transition-colors ${
+                pathname === '/dashboard' ? 'text-violet-400' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Prompts Library
+            </Link>
+            <Link 
+              href="/tools" 
+              className={`font-medium transition-colors ${
+                pathname === '/tools' ? 'text-violet-400' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              AI Tools
+            </Link>
+          </div>
+        </div>
         
         <div className="flex items-center gap-3 md:gap-6">
           {/* Credit Indicator */}

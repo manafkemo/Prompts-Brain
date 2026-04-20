@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { extractTextFromImage } from '@/lib/ocr';
 import { Prompt } from '@/lib/types';
@@ -13,15 +13,21 @@ interface AddPromptModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAdded: (prompt: Prompt) => void;
+  initialPrompt?: string;
 }
 
-export function AddPromptModal({ isOpen, onClose, onAdded }: AddPromptModalProps) {
+export function AddPromptModal({ isOpen, onClose, onAdded, initialPrompt }: AddPromptModalProps) {
   const [step, setStep] = useState<'input' | 'processing' | 'review'>('input');
-  const [rawText, setRawText] = useState('');
+  const [rawText, setRawText] = useState(initialPrompt || '');
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLimitReached, setIsLimitReached] = useState(false);
 
+  useEffect(() => {
+    if (isOpen && initialPrompt) {
+      setRawText(initialPrompt);
+    }
+  }, [isOpen, initialPrompt]);
   const handleClose = () => {
     setStep('input');
     setRawText('');
