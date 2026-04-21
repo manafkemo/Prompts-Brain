@@ -48,6 +48,7 @@ export interface UserSavedTool {
   id: string;
   user_id: string;
   tool_id: string;
+  is_favorite: boolean;
   created_at: string;
 }
 
@@ -55,4 +56,20 @@ export interface AddPromptPayload {
   original_prompt: string;
   extracted_text?: string | null;
   image_file?: File | null;
+}
+
+export interface WebsiteAnalysis {
+  name: string;
+  description: string;
+  category: string;
+  pricing: string;
+  tags: string[];
+}
+
+export interface WebsiteAnalysis {
+  name: string;
+  description: string;
+  category: string;
+  pricing: string;
+  tags: string[];
 }

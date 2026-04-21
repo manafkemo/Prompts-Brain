@@ -28,6 +28,7 @@ export function LibraryDrawer({
   activeCollection,
   setActiveCollection,
   onNewCollection,
+  onPromptMove,
   onDeleteCollection
 }: LibraryDrawerProps) {
   const [isCreating, setIsCreating] = useState(false);

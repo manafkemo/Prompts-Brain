@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { improvePrompt } from '@/lib/gemini';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
-import { useCredit } from '@/lib/credits';
+import { consumeCredit } from '@/lib/credits';
 
 export async function POST(request: Request) {
   try {
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     }
 
     // Check and deduct credits
-    const { success, error: creditError } = await useCredit(supabase);
+    const { success, error: creditError } = await consumeCredit(supabase);
     if (!success) {
       return NextResponse.json({ error: creditError || 'Insufficient credits' }, { status: 403 });
     }

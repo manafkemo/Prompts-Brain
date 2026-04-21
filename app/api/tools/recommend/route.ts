@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
-import { useCredit } from '@/lib/credits';
+import { consumeCredit } from '@/lib/credits';
 import { Tool } from '@/lib/types';
 
 export async function POST(req: Request) {
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     }
 
     // Deduct 1 credit for AI Recommendation
-    const creditCheck = await useCredit(supabase);
+    const creditCheck = await consumeCredit(supabase);
     if (!creditCheck.success) {
       return NextResponse.json({ error: creditCheck.error }, { status: 403 });
     }
@@ -80,12 +80,12 @@ Return ONLY a valid JSON array matching this exact structure:
       setTimeout(() => reject(new Error('AI Request Timeout')), 25000)
     );
 
-    const result: any = await Promise.race([
+    const resultData = await Promise.race([
       model.generateContent(instruction),
       timeoutPromise
-    ]);
+    ]) as { response: { text: () => string } };
 
-    const text = result.response.text();
+    const text = resultData.response.text();
     const jsonMatch = text.match(/\[[\s\S]*\]/);
     if (!jsonMatch) {
       throw new Error('Gemini did not return valid JSON array');
@@ -94,8 +94,9 @@ Return ONLY a valid JSON array matching this exact structure:
     const recommendations = JSON.parse(jsonMatch[0]);
 
     return NextResponse.json({ recommendations });
-  } catch (error: any) {
-    console.error('API Error /api/tools/recommend:', error);
-    return NextResponse.json({ error: error.message || 'Recommendation failed' }, { status: 500 });
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error('API Error /api/tools/recommend:', err);
+    return NextResponse.json({ error: err.message || 'Recommendation failed' }, { status: 500 });
   }
 }

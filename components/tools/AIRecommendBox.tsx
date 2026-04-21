@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { Sparkles, Search, Loader2 } from 'lucide-react';
-import { Tool } from '@/lib/types';
 
 export interface Recommendation {
   tool_id: string;
@@ -13,11 +12,9 @@ export interface Recommendation {
 
 interface AIRecommendBoxProps {
   onRecommendationFound: (recommendations: Recommendation[]) => void;
-  onSelectRecommendedTool: (toolId: string) => void;
-  tools: Tool[]; // Need all tools to map names/details if needed, but we pass full details back via the modal maybe.
 }
 
-export function AIRecommendBox({ onRecommendationFound, tools, onSelectRecommendedTool }: AIRecommendBoxProps) {
+export function AIRecommendBox({ onRecommendationFound }: AIRecommendBoxProps) {
   const [goal, setGoal] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,8 +42,8 @@ export function AIRecommendBox({ onRecommendationFound, tools, onSelectRecommend
       }
 
       onRecommendationFound(data.recommendations);
-    } catch (err: any) {
-      setError(err.message || 'Something went wrong');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Something went wrong');
     } finally {
       setIsLoading(false);
     }

@@ -7,8 +7,16 @@ export async function GET(req: Request) {
     const category = searchParams.get('category');
     
     const supabase = await createServerSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
     
     let query = supabase.from('tools').select('*').order('created_at', { ascending: false });
+    
+    // User can see global tools (user_id is null) OR their own tools
+    if (user) {
+      query = query.or(`user_id.is.null,user_id.eq.${user.id}`);
+    } else {
+      query = query.is('user_id', null);
+    }
     
     if (category) {
       query = query.eq('category', category);

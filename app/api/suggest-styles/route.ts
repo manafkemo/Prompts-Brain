@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { suggestStyles } from '@/lib/gemini';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
-import { useCredit } from '@/lib/credits';
+import { consumeCredit } from '@/lib/credits';
 
 export async function POST(request: Request) {
   try {
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
     }
 
     // Check and deduct credits
-    const { success, error: creditError } = await useCredit(supabase);
+    const { success, error: creditError } = await consumeCredit(supabase);
     if (!success) {
       return NextResponse.json({ error: creditError || 'Insufficient credits' }, { status: 403 });
     }
@@ -33,10 +33,11 @@ export async function POST(request: Request) {
     const styles = await suggestStyles(prompt);
 
     return NextResponse.json({ styles });
-  } catch (error: any) {
-    console.error('Gemini Suggest Styles Error:', error);
+  } catch (error: unknown) {
+    const err = error as Error;
+    console.error('Gemini Suggest Styles Error:', err);
     return NextResponse.json(
-      { error: error.message || 'Failed to suggest styles' },
+      { error: err.message || 'Failed to suggest styles' },
       { status: 500 }
     );
   }

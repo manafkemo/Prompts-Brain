@@ -76,7 +76,7 @@ export function ToolDetailModal({ isOpen, onClose, tool, suggestedPrompts }: Too
             <div className="grid gap-3">
               {suggestedPrompts.map((prompt, idx) => (
                 <div key={idx} className="group flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center p-4 bg-slate-900 border border-slate-800 hover:border-violet-500/30 rounded-xl transition-all">
-                  <p className="text-sm text-slate-300 italic">"{prompt}"</p>
+                  <p className="text-sm text-slate-300 italic">&quot;{prompt}&quot;</p>
                   <button 
                     onClick={() => handleUsePrompt(prompt)}
                     className="flex shrink-0 items-center gap-2 text-sm font-medium text-violet-400 hover:text-white hover:bg-violet-600 bg-violet-500/10 px-4 py-2 rounded-lg transition-all"

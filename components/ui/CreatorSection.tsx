@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 export function CreatorSection() {
   return (
@@ -15,14 +16,12 @@ export function CreatorSection() {
         transition={{ duration: 0.2, ease: "easeOut" }}
         className="relative w-11 h-11 rounded-full overflow-hidden border-2 border-violet-500/50 shadow-[0_0_15px_rgba(139,92,246,0.3)] hover:shadow-[0_0_20px_rgba(139,92,246,0.6)] hover:border-violet-400 transition-all duration-50 cursor-pointer mx-1 shrink-0 bg-slate-800 ring-2 ring-transparent hover:ring-violet-500/30 ring-offset-2 ring-offset-slate-950"
       >
-        <img 
+        <Image 
           src="/manafkemo.jpg" 
           alt="Manaf Kemo" 
+          width={44}
+          height={44}
           className="w-full h-full object-cover"
-          onError={(e) => {
-            // Fallback if image fails
-            e.currentTarget.src = "https://ui-avatars.com/api/?name=Manaf+Kemo&background=8b5cf6&color=fff";
-          }}
         />
       </motion.a>
       <span className="whitespace-nowrap tracking-wide">

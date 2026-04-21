@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
-import { useCredit } from '@/lib/credits';
+import { consumeCredit } from '@/lib/credits';
 
 export async function POST(request: Request) {
   try {
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     }
 
     // Check and deduct credits
-    const { success, error: creditError } = await useCredit(supabase);
+    const { success, error: creditError } = await consumeCredit(supabase);
     if (!success) {
       console.error('Credit deduction failed for user:', user.id, creditError);
       return NextResponse.json(

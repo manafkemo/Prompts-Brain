@@ -1,19 +1,19 @@
 'use client';
 
 import { Tool } from '@/lib/types';
-import { ExternalLink, Bookmark, Sparkles } from 'lucide-react';
+import { ExternalLink, Heart } from 'lucide-react';
 
 interface ToolCardProps {
   tool: Tool;
-  isSaved: boolean;
-  onSaveToggle: (toolId: string) => void;
+  isFavorite: boolean;
+  onFavoriteToggle: (toolId: string, status: boolean) => void;
   onClick: (tool: Tool) => void;
 }
 
-export function ToolCard({ tool, isSaved, onSaveToggle, onClick }: ToolCardProps) {
-  const handleSave = (e: React.MouseEvent) => {
+export function ToolCard({ tool, isFavorite, onFavoriteToggle, onClick }: ToolCardProps) {
+  const handleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onSaveToggle(tool.id);
+    onFavoriteToggle(tool.id, !isFavorite);
   };
 
   return (
@@ -29,13 +29,15 @@ export function ToolCard({ tool, isSaved, onSaveToggle, onClick }: ToolCardProps
           <h3 className="text-xl font-bold tracking-tight text-white group-hover:text-violet-400 transition-colors">
             {tool.name}
           </h3>
-          <button 
-            onClick={handleSave}
-            title={isSaved ? "Saved" : "Save this tool"}
-            className="p-2 -mr-2 -mt-2 text-slate-400 hover:text-violet-400 hover:bg-violet-500/10 rounded-full transition-colors relative z-10"
-          >
-            <Bookmark className={`w-5 h-5 ${isSaved ? 'fill-violet-500 text-violet-500' : ''}`} />
-          </button>
+          <div className="flex items-center gap-1 -mr-2 -mt-2 relative z-10">
+            <button 
+              onClick={handleFavorite}
+              title={isFavorite ? "Unfavorite" : "Favorite"}
+              className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-full transition-colors"
+            >
+              <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
+            </button>
+          </div>
         </div>
 
         <p className="text-sm text-slate-400 line-clamp-3 mb-4 leading-relaxed">

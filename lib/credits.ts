@@ -7,7 +7,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
  * @param supabase The server-side Supabase client
  * @returns { success: boolean, credits: number | null, error: string | null }
  */
-export async function useCredit(supabase: SupabaseClient) {
+export async function consumeCredit(supabase: SupabaseClient) {
   const { data: success, error } = await supabase.rpc('decrement_credits');
 
   if (error) {

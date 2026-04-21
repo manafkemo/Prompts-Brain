@@ -1,8 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, X, AlertTriangle, ArrowRight } from 'lucide-react';
-import { Modal } from './Modal';
+import { X, AlertTriangle, ArrowRight } from 'lucide-react';
 
 interface CreditLimitModalProps {
   isOpen: boolean;

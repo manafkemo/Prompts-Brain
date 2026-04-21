@@ -1,4 +1,4 @@
-import { GeminiAnalysis } from './types';
+import { GeminiAnalysis, WebsiteAnalysis } from './types';
 import { z } from 'zod';
 
 const GeminiSchema = z.object({
@@ -11,7 +11,41 @@ const GeminiSchema = z.object({
   tags: z.array(z.string()),
 });
 
+const WebsiteAnalysisSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  category: z.string(),
+  pricing: z.string(),
+  tags: z.array(z.string()),
+});
+
 const analysisCache = new Map<string, GeminiAnalysis>();
+
+async function withRetry<T>(fn: () => Promise<T>, maxRetries = 3): Promise<T> {
+  let lastError: any;
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error: any) {
+      lastError = error;
+      const errorMsg = error.message || String(error);
+      const isTransient = 
+        errorMsg.includes('503') || 
+        errorMsg.includes('429') ||
+        errorMsg.includes('Service Unavailable') ||
+        errorMsg.includes('High demand');
+      
+      if (isTransient && i < maxRetries - 1) {
+        const delay = Math.pow(2, i) * 2000 + Math.random() * 1000;
+        console.warn(`[Gemini] Transient error, retrying in ${Math.round(delay)}ms... (Attempt ${i + 1}/${maxRetries})`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+        continue;
+      }
+      throw error;
+    }
+  }
+  throw lastError;
+}
 
 export async function analyzePrompt(promptText: string): Promise<GeminiAnalysis> {
   // Check cache first
@@ -54,10 +88,12 @@ ${promptText}
     setTimeout(() => reject(new Error('AI Request Timeout')), 30000)
   );
 
-  const result: any = await Promise.race([
-    model.generateContent(instruction),
-    timeoutPromise
-  ]);
+  const result = await withRetry(async () => {
+    return await Promise.race([
+      model.generateContent(instruction),
+      timeoutPromise
+    ]) as { response: { text: () => string } };
+  });
 
   const text = result.response.text();
 
@@ -79,7 +115,6 @@ ${promptText}
 export async function improvePrompt(promptText: string): Promise<string> {
   const { GoogleGenerativeAI } = await import('@google/generative-ai');
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-  // Using the new gemini-2.5-flash which is the one you prefer
   const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
   const instruction = `You are an expert AI prompt engineer.
@@ -102,7 +137,7 @@ Prompt:
 ${promptText}
 """`;
 
-  const result = await model.generateContent(instruction);
+  const result = await withRetry(() => model.generateContent(instruction));
   const text = result.response.text();
 
   return text.trim();
@@ -128,7 +163,7 @@ Prompt:
 ${promptText}
 """`;
 
-  const result = await model.generateContent(instruction);
+  const result = await withRetry(() => model.generateContent(instruction));
   const text = result.response.text();
 
   const jsonMatch = text.match(/\[[\s\S]*\]/);
@@ -163,8 +198,53 @@ Prompt:
 ${promptText}
 """`;
 
-  const result = await model.generateContent(instruction);
+  const result = await withRetry(() => model.generateContent(instruction));
   const text = result.response.text();
 
   return text.trim();
+}
+
+/**
+ * General website analyzer that can handle any URL/metadata.
+ */
+export async function analyzeWebsite(url: string, metadata: { title: string, description: string }): Promise<WebsiteAnalysis> {
+  const { GoogleGenerativeAI } = await import('@google/generative-ai');
+  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+  const instruction = `Analyze the following website information and categorize it.
+This could be an AI tool, a developer tool, a news site, a portfolio, or any other type of website.
+
+Site Info:
+URL: ${url}
+Title: ${metadata.title}
+Meta Description: ${metadata.description}
+
+You must return a structured JSON with:
+- name: The site's official name
+- description: A concise (1-2 sentence) summary of what the site is/does
+- category: A single broad category (e.g., AI Image, Dev Tools, News, Design, Portfolio, Social, Documentation, etc.)
+- pricing: "Free", "Freemium", "Paid", or "Unknown"
+- tags: Array of 3-5 relevant keywords
+
+Return ONLY valid JSON with this structure:
+{
+  "name": "string",
+  "description": "string",
+  "category": "string",
+  "pricing": "Free | Freemium | Paid | Unknown",
+  "tags": ["tag1", "tag2", "tag3"]
+}
+`;
+
+  const result = await withRetry(() => model.generateContent(instruction));
+  const text = result.response.text();
+
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) {
+    throw new Error('Gemini did not return valid JSON for website analysis');
+  }
+
+  const parsed = JSON.parse(jsonMatch[0]);
+  return WebsiteAnalysisSchema.parse(parsed);
 }

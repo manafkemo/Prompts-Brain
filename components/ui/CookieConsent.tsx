@@ -40,6 +40,7 @@ export function CookieConsent() {
     const consent = safeGet();
     if (!consent) {
       if (IS_DEV) console.log('[CookieAudit] No consent found, showing banner');
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsVisible(true);
     }
   }, []);
@@ -73,7 +74,7 @@ export function CookieConsent() {
             <div className="flex-grow text-center md:text-left">
               <h4 className="text-white font-bold mb-1">We value your privacy</h4>
               <p className="text-slate-400 text-sm">
-                We use cookies to improve your experience and analyze our traffic. By clicking "Accept", you consent to our use of cookies.
+                We use cookies to improve your experience and analyze our traffic. By clicking &quot;Accept&quot;, you consent to our use of cookies.
               </p>
             </div>
             

@@ -9,18 +9,17 @@ interface PromptCardProps {
   onDelete?: (id: string, e: React.MouseEvent) => void;
 }
 
+const TYPE_ICONS = {
+  image: ImageIcon,
+  video: Video,
+  voice: Mic,
+  code: Code,
+} as const;
+
 export const PromptCard = memo(function PromptCard({ prompt, onDelete }: PromptCardProps) {
   const [copied, setCopied] = useState(false);
 
-  const TypeIcon = () => {
-    switch (prompt.type) {
-      case "image": return <ImageIcon className="w-4 h-4" />;
-      case "video": return <Video className="w-4 h-4" />;
-      case "voice": return <Mic className="w-4 h-4" />;
-      case "code": return <Code className="w-4 h-4" />;
-      default: return <HelpCircle className="w-4 h-4" />;
-    }
-  };
+  const Icon = TYPE_ICONS[prompt.type as keyof typeof TYPE_ICONS] || HelpCircle;
 
   const handleCopy = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -50,7 +49,7 @@ export const PromptCard = memo(function PromptCard({ prompt, onDelete }: PromptC
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-center space-x-2">
               <Badge variant="secondary" className="flex items-center space-x-1">
-                <TypeIcon />
+                <Icon className="w-4 h-4" />
                 <span className="capitalize">{prompt.type}</span>
               </Badge>
             </div>

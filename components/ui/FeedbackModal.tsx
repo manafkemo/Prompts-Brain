@@ -42,8 +42,8 @@ export function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
         onClose();
         setIsSuccess(false);
       }, 2000);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to submit feedback');
     } finally {
       setIsSubmitting(false);
     }
