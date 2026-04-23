@@ -49,6 +49,7 @@ export default function ToolsPage() {
   const [pricingFilter, setPricingFilter] = useState<string>('All');
   
   const [dragOverCategoryId, setDragOverCategoryId] = useState<string | null>(null);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   
   // AI Recs
   const [aiRecommendations, setAiRecommendations] = useState<Recommendation[] | null>(null);
@@ -251,222 +252,290 @@ export default function ToolsPage() {
     return matchesCategory && matchesSearch && matchesPricing;
   });
 
+  const SidebarContent = () => (
+    <>
+      <div className="mb-8">
+        <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-6 px-3">
+          Library
+        </h2>
+        <nav className="space-y-1.5">
+          {mainCategories.map((cat) => (
+            <button
+              key={cat.name}
+              onClick={() => {
+                setCategoryFilter(cat.name);
+                setIsMobileSidebarOpen(false);
+              }}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all relative group ${
+                categoryFilter === cat.name 
+                  ? 'text-white bg-violet-600/10' 
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              {categoryFilter === cat.name && (
+                <motion.div 
+                  layoutId="active-pill"
+                  className="absolute left-0 w-1 h-6 bg-violet-500 rounded-full"
+                />
+              )}
+              <cat.icon className={`h-5 w-5 ${categoryFilter === cat.name ? 'text-violet-500' : 'text-slate-500 group-hover:text-slate-300'}`} />
+              {cat.name}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      <div className="mb-8">
+        <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-6 px-3">
+          Explore
+        </h2>
+        <nav className="space-y-1.5">
+          {defaultCategories.map((cat) => (
+            <button
+              key={cat.name}
+              onClick={() => {
+                setCategoryFilter(cat.name);
+                setIsMobileSidebarOpen(false);
+              }}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all relative group ${
+                categoryFilter === cat.name 
+                  ? 'text-white bg-violet-600/10' 
+                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              {categoryFilter === cat.name && (
+                <motion.div 
+                  layoutId="active-pill"
+                  className="absolute left-0 w-1 h-6 bg-violet-500 rounded-full"
+                />
+              )}
+              <cat.icon className={`h-5 w-5 ${categoryFilter === cat.name ? 'text-violet-500' : 'text-slate-500 group-hover:text-slate-300'}`} />
+              {cat.name}
+            </button>
+          ))}
+        </nav>
+      </div>
+
+      <div className="mb-8">
+        <button 
+          onClick={() => setIsAddCategoryModalOpen(true)}
+          className="w-full flex items-center justify-between px-4 py-3 mb-6 rounded-2xl bg-slate-900/50 border border-white/5 hover:border-violet-500/50 hover:bg-violet-500/5 transition-all group shadow-sm"
+        >
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 group-hover:text-violet-400">
+            Add Category
+          </span>
+          <Plus className="h-4 w-4 text-slate-600 group-hover:text-violet-500 group-hover:rotate-90 transition-transform" />
+        </button>
+
+        <nav className="space-y-1.5">
+          {userCategories.length > 0 ? (
+            userCategories.map((cat) => {
+              const IconComponent = (LucideIcons as any)[cat.icon || 'Globe'] || LucideIcons.Globe;
+              const colorMap: any = {
+                violet: 'text-violet-500',
+                emerald: 'text-emerald-500',
+                rose: 'text-rose-500',
+                amber: 'text-amber-500',
+                blue: 'text-blue-500',
+                cyan: 'text-cyan-500',
+              };
+              const activeColorMap: any = {
+                violet: 'bg-violet-500/10 text-violet-400',
+                emerald: 'bg-emerald-500/10 text-emerald-400',
+                rose: 'bg-rose-500/10 text-rose-400',
+                amber: 'bg-amber-500/10 text-amber-400',
+                blue: 'bg-blue-500/10 text-blue-400',
+                cyan: 'bg-cyan-500/10 text-cyan-400',
+              };
+              
+              const catColor = cat.color || 'violet';
+              
+              return (
+                <div
+                  key={cat.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => {
+                    setCategoryFilter(cat.id);
+                    setIsMobileSidebarOpen(false);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      setCategoryFilter(cat.id);
+                      setIsMobileSidebarOpen(false);
+                    }
+                  }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDragOverCategoryId(cat.id);
+                  }}
+                  onDragLeave={() => setDragOverCategoryId(null)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const toolId = e.dataTransfer.getData('toolId');
+                    handleMoveToolToCategory(toolId, cat.id);
+                    setDragOverCategoryId(null);
+                  }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all relative group cursor-pointer ${
+                    categoryFilter === cat.id 
+                      ? activeColorMap[catColor] || 'text-white bg-violet-600/10' 
+                      : dragOverCategoryId === cat.id
+                        ? 'bg-violet-500/20 text-white border-dashed border border-violet-500/50'
+                        : 'text-slate-400 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  {categoryFilter === cat.id && (
+                    <motion.div 
+                      layoutId="active-pill"
+                      className={`absolute left-0 w-1 h-6 rounded-full ${
+                        catColor === 'emerald' ? 'bg-emerald-500' :
+                        catColor === 'rose' ? 'bg-rose-500' :
+                        catColor === 'amber' ? 'bg-amber-500' :
+                        catColor === 'blue' ? 'bg-blue-500' :
+                        catColor === 'cyan' ? 'bg-cyan-500' :
+                        catColor === 'lime' ? 'bg-lime-500' :
+                        catColor === 'indigo' ? 'bg-indigo-500' :
+                        catColor === 'fuchsia' ? 'bg-fuchsia-500' :
+                        catColor === 'orange' ? 'bg-orange-500' :
+                        catColor === 'slate' ? 'bg-slate-500' :
+                        catColor === 'sky' ? 'bg-sky-500' :
+                        'bg-violet-500'
+                      }`}
+                    />
+                  )}
+                  <IconComponent className={`h-5 w-5 ${
+                    categoryFilter === cat.id 
+                      ? (colorMap[catColor] || 'text-violet-500') 
+                      : 'text-slate-500 group-hover:text-slate-300'
+                  }`} />
+                  <span className="flex-1 text-left">{cat.name}</span>
+                  
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); handleEditCategory(cat); }}
+                      className="p-1 hover:bg-white/10 rounded text-slate-500 hover:text-white"
+                      title="Edit"
+                    >
+                      <Palette className="h-3.5 w-3.5" />
+                    </button>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); handleDeleteCategory(cat.id); }}
+                      className="p-1 hover:bg-red-500/20 rounded text-slate-500 hover:text-red-400"
+                      title="Delete"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="px-4 py-3 text-xs text-slate-600 italic">
+              Create categories to organize your library.
+            </div>
+          )}
+        </nav>
+      </div>
+    </>
+  );
+
   return (
     <div className="min-h-screen bg-black overflow-x-hidden text-slate-200">
       <Navbar />
 
       <div className="flex flex-col lg:flex-row min-h-[calc(100vh-64px)]">
-        {/* Sidebar */}
-        <aside className="lg:w-72 border-r border-white/5 bg-slate-950/50 backdrop-blur-xl lg:sticky lg:top-16 lg:h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar p-6">
-          <div className="mb-8">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-6 px-3">
-              Library
-            </h2>
-            <nav className="space-y-1.5">
-              {mainCategories.map((cat) => (
-                <button
-                  key={cat.name}
-                  onClick={() => setCategoryFilter(cat.name)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all relative group ${
-                    categoryFilter === cat.name 
-                      ? 'text-white bg-violet-600/10' 
-                      : 'text-slate-400 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  {categoryFilter === cat.name && (
-                    <motion.div 
-                      layoutId="active-pill"
-                      className="absolute left-0 w-1 h-6 bg-violet-500 rounded-full"
-                    />
-                  )}
-                  <cat.icon className={`h-5 w-5 ${categoryFilter === cat.name ? 'text-violet-500' : 'text-slate-500 group-hover:text-slate-300'}`} />
-                  {cat.name}
-                </button>
-              ))}
-            </nav>
-          </div>
-
-          <div className="mb-8">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-6 px-3">
-              Explore
-            </h2>
-            <nav className="space-y-1.5">
-              {defaultCategories.map((cat) => (
-                <button
-                  key={cat.name}
-                  onClick={() => setCategoryFilter(cat.name)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all relative group ${
-                    categoryFilter === cat.name 
-                      ? 'text-white bg-violet-600/10' 
-                      : 'text-slate-400 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  {categoryFilter === cat.name && (
-                    <motion.div 
-                      layoutId="active-pill"
-                      className="absolute left-0 w-1 h-6 bg-violet-500 rounded-full"
-                    />
-                  )}
-                  <cat.icon className={`h-5 w-5 ${categoryFilter === cat.name ? 'text-violet-500' : 'text-slate-500 group-hover:text-slate-300'}`} />
-                  {cat.name}
-                </button>
-              ))}
-            </nav>
-          </div>
-
-          <div className="mb-8">
-            <button 
-              onClick={() => setIsAddCategoryModalOpen(true)}
-              className="w-full flex items-center justify-between px-4 py-3 mb-6 rounded-2xl bg-slate-900/50 border border-white/5 hover:border-violet-500/50 hover:bg-violet-500/5 transition-all group shadow-sm"
-            >
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 group-hover:text-violet-400">
-                Add Category
-              </span>
-              <Plus className="h-4 w-4 text-slate-600 group-hover:text-violet-500 group-hover:rotate-90 transition-transform" />
-            </button>
-
-            <nav className="space-y-1.5">
-              {userCategories.length > 0 ? (
-                userCategories.map((cat) => {
-                  const IconComponent = (LucideIcons as any)[cat.icon || 'Globe'] || LucideIcons.Globe;
-                  const colorMap: any = {
-                    violet: 'text-violet-500',
-                    emerald: 'text-emerald-500',
-                    rose: 'text-rose-500',
-                    amber: 'text-amber-500',
-                    blue: 'text-blue-500',
-                    cyan: 'text-cyan-500',
-                  };
-                  const activeColorMap: any = {
-                    violet: 'bg-violet-500/10 text-violet-400',
-                    emerald: 'bg-emerald-500/10 text-emerald-400',
-                    rose: 'bg-rose-500/10 text-rose-400',
-                    amber: 'bg-amber-500/10 text-amber-400',
-                    blue: 'bg-blue-500/10 text-blue-400',
-                    cyan: 'bg-cyan-500/10 text-cyan-400',
-                  };
-                  
-                  const catColor = cat.color || 'violet';
-                  
-                  return (
-                    <div
-                      key={cat.id}
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => setCategoryFilter(cat.id)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          setCategoryFilter(cat.id);
-                        }
-                      }}
-                      onDragOver={(e) => {
-                        e.preventDefault();
-                        setDragOverCategoryId(cat.id);
-                      }}
-                      onDragLeave={() => setDragOverCategoryId(null)}
-                      onDrop={(e) => {
-                        e.preventDefault();
-                        const toolId = e.dataTransfer.getData('toolId');
-                        handleMoveToolToCategory(toolId, cat.id);
-                        setDragOverCategoryId(null);
-                      }}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all relative group cursor-pointer ${
-                        categoryFilter === cat.id 
-                          ? activeColorMap[catColor] || 'text-white bg-violet-600/10' 
-                          : dragOverCategoryId === cat.id
-                            ? 'bg-violet-500/20 text-white border-dashed border border-violet-500/50'
-                            : 'text-slate-400 hover:text-white hover:bg-white/5'
-                      }`}
-                    >
-                      {categoryFilter === cat.id && (
-                        <motion.div 
-                          layoutId="active-pill"
-                          className={`absolute left-0 w-1 h-6 rounded-full ${
-                            catColor === 'emerald' ? 'bg-emerald-500' :
-                            catColor === 'rose' ? 'bg-rose-500' :
-                            catColor === 'amber' ? 'bg-amber-500' :
-                            catColor === 'blue' ? 'bg-blue-500' :
-                            catColor === 'cyan' ? 'bg-cyan-500' :
-                            catColor === 'lime' ? 'bg-lime-500' :
-                            catColor === 'indigo' ? 'bg-indigo-500' :
-                            catColor === 'fuchsia' ? 'bg-fuchsia-500' :
-                            catColor === 'orange' ? 'bg-orange-500' :
-                            catColor === 'slate' ? 'bg-slate-500' :
-                            catColor === 'sky' ? 'bg-sky-500' :
-                            'bg-violet-500'
-                          }`}
-                        />
-                      )}
-                      <IconComponent className={`h-5 w-5 ${
-                        categoryFilter === cat.id 
-                          ? (colorMap[catColor] || 'text-violet-500') 
-                          : 'text-slate-500 group-hover:text-slate-300'
-                      }`} />
-                      <span className="flex-1 text-left">{cat.name}</span>
-                      
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); handleEditCategory(cat); }}
-                          className="p-1 hover:bg-white/10 rounded text-slate-500 hover:text-white"
-                          title="Edit"
-                        >
-                          <Palette className="h-3.5 w-3.5" />
-                        </button>
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); handleDeleteCategory(cat.id); }}
-                          className="p-1 hover:bg-red-500/20 rounded text-slate-500 hover:text-red-400"
-                          title="Delete"
-                        >
-                          <X className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="px-4 py-3 text-xs text-slate-600 italic">
-                  Create categories to organize your library.
-                </div>
-              )}
-            </nav>
-          </div>
+        {/* Desktop Sidebar */}
+        <aside className="hidden lg:block lg:w-72 border-r border-white/5 bg-slate-950/50 backdrop-blur-xl lg:sticky lg:top-16 lg:h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar p-6">
+          <SidebarContent />
         </aside>
 
+        {/* Mobile Sidebar Drawer */}
+        <AnimatePresence>
+          {isMobileSidebarOpen && (
+            <div className="lg:hidden fixed inset-0 z-50 overflow-hidden">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsMobileSidebarOpen(false)}
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              />
+              <motion.div 
+                initial={{ x: '-100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '-100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="absolute inset-y-0 left-0 w-[280px] bg-slate-950 border-r border-white/10 shadow-2xl flex flex-col p-6 overflow-y-auto"
+              >
+                <div className="flex items-center justify-between mb-8">
+                  <h2 className="text-lg font-bold text-white">Categories</h2>
+                  <button 
+                    onClick={() => setIsMobileSidebarOpen(false)}
+                    className="p-2 text-slate-400 hover:text-white bg-white/5 rounded-xl transition-colors"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+                <SidebarContent />
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
         {/* Main Content */}
-        <main className="flex-grow p-6 lg:p-12 pb-32">
+        <main className="flex-grow p-4 md:p-8 lg:p-12 pb-32">
           {/* Header & Search-like Matchmaker */}
-          <div className="max-w-5xl mx-auto mb-12">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
-              <div>
-                <h1 className="text-4xl font-black text-white tracking-tight mb-2">
-                  {categoryFilter === 'All' 
-                    ? 'Tool Library' 
-                    : categoryFilter === 'Favorites' 
-                      ? 'My Favorites' 
-                      : (userCategories.find(c => c.id === categoryFilter)?.name || categoryFilter)}
-                </h1>
-                <p className="text-slate-500 font-medium">
-                  Discover and manage your curated stack of specialized tools.
-                </p>
+          <div className="max-w-6xl mx-auto mb-8 md:mb-12">
+            <div className="flex flex-col gap-6 mb-8 md:mb-12">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                  <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-2">
+                    {categoryFilter === 'All' 
+                      ? 'Tool Library' 
+                      : categoryFilter === 'Favorites' 
+                        ? 'My Favorites' 
+                        : (userCategories.find(c => c.id === categoryFilter)?.name || categoryFilter)}
+                  </h1>
+                  <p className="text-slate-500 font-medium text-sm md:text-base">
+                    Discover and manage your curated stack of specialized tools.
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setIsMobileSidebarOpen(true)}
+                    className="lg:hidden flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-900 border border-white/5 text-slate-300 hover:text-white transition-all active:scale-95"
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                    Categories
+                  </button>
+                  <button
+                    onClick={() => setIsAddModalOpen(true)}
+                    className="flex items-center gap-2 px-5 md:px-6 py-2.5 md:py-3 rounded-xl md:rounded-2xl text-sm font-bold bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-600/20 transition-all active:scale-[0.98] group"
+                  >
+                    <Plus className="h-5 w-5 group-hover:rotate-90 transition-transform" />
+                    Add Tool
+                  </button>
+                </div>
               </div>
-              <div className="flex flex-wrap items-center gap-4">
-                <div className="relative flex-1 min-w-[240px]">
+
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                <div className="relative flex-1">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
                   <input 
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search tools, tags, features..."
-                    className="w-full bg-slate-900/50 border border-white/5 rounded-2xl py-3 pl-12 pr-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all backdrop-blur-sm"
+                    className="w-full bg-slate-900/50 border border-white/5 rounded-xl md:rounded-2xl py-2.5 md:py-3 pl-12 pr-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-all backdrop-blur-sm"
                   />
                 </div>
                 
-                <div className="flex items-center gap-2 bg-slate-900/50 border border-white/5 p-1.5 rounded-2xl backdrop-blur-sm">
+                <div className="flex items-center gap-1 bg-slate-900/50 border border-white/5 p-1 rounded-xl md:rounded-2xl backdrop-blur-sm overflow-x-auto no-scrollbar">
                   {['All', 'Free', 'Freemium', 'Paid'].map((p) => (
                     <button
                       key={p}
                       onClick={() => setPricingFilter(p)}
-                      className={`px-4 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      className={`px-3 md:px-4 py-1.5 rounded-lg md:rounded-xl text-[11px] md:text-xs font-bold transition-all whitespace-nowrap ${
                         pricingFilter === p 
                           ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/20' 
                           : 'text-slate-500 hover:text-white'
@@ -477,14 +546,7 @@ export default function ToolsPage() {
                   ))}
                 </div>
 
-                <button
-                  onClick={() => setIsAddModalOpen(true)}
-                  className="flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-600/20 transition-all active:scale-[0.98] group"
-                >
-                  <Plus className="h-5 w-5 group-hover:rotate-90 transition-transform" />
-                  Add Tool
-                </button>
-                <div className="flex items-center gap-3 bg-slate-900/50 border border-white/5 px-4 py-2 rounded-2xl backdrop-blur-sm h-[48px]">
+                <div className="hidden sm:flex items-center gap-3 bg-slate-900/50 border border-white/5 px-4 py-2 rounded-2xl backdrop-blur-sm h-[44px] md:h-[48px]">
                   <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                   <span className="text-xs font-bold text-slate-400 uppercase tracking-widest whitespace-nowrap">
                     {filteredTools.length} {filteredTools.length === 1 ? 'Tool' : 'Tools'}
@@ -586,7 +648,7 @@ export default function ToolsPage() {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
                 {filteredTools.map(tool => (
                   <ToolCard
                     key={tool.id}

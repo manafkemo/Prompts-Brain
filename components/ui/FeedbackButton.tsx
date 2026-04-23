@@ -11,7 +11,7 @@ export function FeedbackButton() {
 
   return (
     <>
-      <div className="fixed bottom-6 right-6 z-40">
+      <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40">
         <div className="relative group">
           {/* Label tooltip */}
           <AnimatePresence>
@@ -36,10 +36,10 @@ export function FeedbackButton() {
             onClick={() => setIsOpen(true)}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 text-white shadow-xl shadow-violet-900/30 ring-1 ring-white/20 transition-all hover:shadow-violet-900/50"
+            className="flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-xl sm:rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 text-white shadow-xl shadow-violet-900/30 ring-1 ring-white/20 transition-all hover:shadow-violet-900/50"
             aria-label="Open feedback modal"
           >
-            <MessageSquareReply size={24} />
+            <MessageSquareReply className="w-5 h-5 sm:w-6 sm:h-6" />
           </motion.button>
 
           {/* Status Indicator */}

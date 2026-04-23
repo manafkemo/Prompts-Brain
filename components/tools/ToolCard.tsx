@@ -50,14 +50,14 @@ export function ToolCard({
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      className="group relative flex flex-col justify-between glass-panel rounded-2xl p-5 hover:border-violet-500/50 transition-all duration-300 cursor-pointer overflow-hidden transform hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-500/10 active:scale-[0.98]"
+      className="group relative flex flex-col justify-between glass-panel rounded-2xl p-4 sm:p-5 hover:border-violet-500/50 transition-all duration-300 cursor-pointer overflow-hidden transform hover:-translate-y-1 hover:shadow-xl hover:shadow-violet-500/10 active:scale-[0.98]"
     >
       {/* Background Glow */}
       <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
       <div>
         <div className="flex justify-between items-start mb-4">
-          <h3 className="text-xl font-bold tracking-tight text-white group-hover:text-violet-400 transition-colors">
+          <h3 className="text-lg sm:text-xl font-bold tracking-tight text-white group-hover:text-violet-400 transition-colors">
             {tool.name}
           </h3>
           <div className="flex items-center gap-1 -mr-2 -mt-2 relative z-10">

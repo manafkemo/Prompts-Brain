@@ -100,7 +100,7 @@ export function CookieConsent() {
       {IS_DEV && !isVisible && (
         <button
           onClick={handleReset}
-          className="fixed bottom-4 left-4 z-[101] flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-400 hover:bg-red-500/20 transition-all opacity-50 hover:opacity-100"
+          className="fixed bottom-4 right-24 md:left-4 md:right-auto z-[101] flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-[10px] font-bold text-red-400 hover:bg-red-500/20 transition-all opacity-50 hover:opacity-100"
         >
           <X size={12} />
           RESET COOKIES (DEV)
