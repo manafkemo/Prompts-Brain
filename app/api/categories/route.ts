@@ -26,12 +26,12 @@ export async function POST(req: Request) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { name } = await req.json();
+    const { name, icon, color } = await req.json();
     if (!name) return NextResponse.json({ error: 'Name is required' }, { status: 400 });
 
     const { data, error } = await supabase
       .from('tool_categories')
-      .insert({ user_id: user.id, name })
+      .insert({ user_id: user.id, name, icon, color })
       .select()
       .single();
 
@@ -60,6 +60,35 @@ export async function DELETE(req: Request) {
 
     if (error) throw error;
     return NextResponse.json({ success: true });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function PATCH(req: Request) {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const { id, name, icon, color } = await req.json();
+    if (!id) return NextResponse.json({ error: 'ID is required' }, { status: 400 });
+
+    const updateData: any = {};
+    if (name) updateData.name = name;
+    if (icon) updateData.icon = icon;
+    if (color) updateData.color = color;
+
+    const { data, error } = await supabase
+      .from('tool_categories')
+      .update(updateData)
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return NextResponse.json(data);
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

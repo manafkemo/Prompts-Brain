@@ -27,14 +27,54 @@ export async function POST(req: Request) {
 
     if (fetchError) throw fetchError;
 
+    // Fetch user categories for AI context
+    const { data: userCategories } = await supabase
+      .from('tool_categories')
+      .select('name, id')
+      .eq('user_id', user.id);
+    
+    const defaultCategories = ['Image', 'Video', 'Text', 'Code', 'Other'];
+    const allCategoryNames = [
+      ...defaultCategories,
+      ...(userCategories?.map(c => c.name) || [])
+    ];
+
     let tool = existingTool;
+    let categoryId = null;
 
     if (!tool) {
       // 2. Fetch Metadata (Basic Scrape)
       const metadata = await fetchMetadata(url);
       
       // 3. AI Analysis
-      const analysis = await analyzeWebsite(url, metadata);
+      const analysis = await analyzeWebsite(url, metadata, allCategoryNames);
+      
+      // Check if we need to create a new category
+      let categoryId = null;
+      const suggestedCategory = analysis.category;
+      
+      // Find category ID
+      const existingCat = userCategories?.find(c => c.name.toLowerCase() === suggestedCategory.toLowerCase());
+      
+      if (existingCat) {
+        categoryId = existingCat.id;
+      } else if (!defaultCategories.includes(suggestedCategory)) {
+        // Create new category if not default and not existing
+        const { data: newCat, error: catError } = await supabase
+          .from('tool_categories')
+          .insert({
+            name: suggestedCategory,
+            user_id: user.id,
+            icon: 'Box', // Default icon for AI-created categories
+            color: 'violet'
+          })
+          .select()
+          .single();
+          
+        if (!catError && newCat) {
+          categoryId = newCat.id;
+        }
+      }
       
       // 4. Insert into tools table
       const { data: newTool, error: insertError } = await supabase
@@ -46,13 +86,28 @@ export async function POST(req: Request) {
           pricing: analysis.pricing,
           url: url,
           tags: analysis.tags,
-          user_id: user.id // Mark as user-submitted
+          user_id: user.id
         })
         .select()
         .single();
         
       if (insertError) throw insertError;
       tool = newTool;
+    } else {
+      // Tool already exists, but we still want to categorize it for this user's context
+      const analysis = await analyzeWebsite(url, { title: tool.name, description: tool.description }, allCategoryNames);
+      const suggestedCategory = analysis.category;
+      
+      const existingCat = userCategories?.find(c => c.name.toLowerCase() === suggestedCategory.toLowerCase());
+      if (existingCat) {
+        categoryId = existingCat.id;
+      } else if (!defaultCategories.includes(suggestedCategory)) {
+        const { data: newCat } = await supabase
+          .from('tool_categories')
+          .insert({ name: suggestedCategory, user_id: user.id, icon: 'Box', color: 'violet' })
+          .select().single();
+        if (newCat) categoryId = newCat.id;
+      }
     }
 
     // 5. Save to user's library
@@ -60,7 +115,8 @@ export async function POST(req: Request) {
       .from('user_saved_tools')
       .upsert({ 
         user_id: user.id, 
-        tool_id: tool!.id 
+        tool_id: tool!.id,
+        category_id: categoryId
       }, { onConflict: 'user_id,tool_id' });
 
     if (saveError) throw saveError;

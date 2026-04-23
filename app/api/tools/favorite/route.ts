@@ -11,7 +11,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { tool_id, is_favorite } = await req.json();
+    const { tool_id, is_favorite, category_id } = await req.json();
 
     if (!tool_id) {
       return NextResponse.json({ error: 'tool_id is required' }, { status: 400 });
@@ -19,13 +19,17 @@ export async function POST(req: Request) {
 
     // Upsert favorite status in user_saved_tools
     // This allows favoriting a tool even if it wasn't bookmarked yet
+    const updateData: any = { 
+      user_id: user.id, 
+      tool_id: tool_id, 
+    };
+    
+    if (is_favorite !== undefined) updateData.is_favorite = is_favorite;
+    if (category_id !== undefined) updateData.category_id = category_id;
+
     const { data, error } = await supabase
       .from('user_saved_tools')
-      .upsert({ 
-        user_id: user.id, 
-        tool_id: tool_id, 
-        is_favorite: is_favorite 
-      }, { onConflict: 'user_id,tool_id' })
+      .upsert(updateData, { onConflict: 'user_id,tool_id' })
       .select()
       .single();
 

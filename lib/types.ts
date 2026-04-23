@@ -42,6 +42,8 @@ export interface Tool {
   url: string;
   tags: string[];
   created_at: string;
+  user_category_id?: string | null;
+  is_favorite?: boolean;
 }
 
 export interface UserSavedTool {
@@ -49,6 +51,7 @@ export interface UserSavedTool {
   user_id: string;
   tool_id: string;
   is_favorite: boolean;
+  category_id?: string | null;
   created_at: string;
 }
 
@@ -66,10 +69,11 @@ export interface WebsiteAnalysis {
   tags: string[];
 }
 
-export interface WebsiteAnalysis {
+export interface ToolCategory {
+  id: string;
+  user_id: string;
   name: string;
-  description: string;
-  category: string;
-  pricing: string;
-  tags: string[];
+  icon?: string;
+  color?: string;
+  created_at: string;
 }

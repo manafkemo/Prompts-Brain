@@ -207,7 +207,11 @@ ${promptText}
 /**
  * General website analyzer that can handle any URL/metadata.
  */
-export async function analyzeWebsite(url: string, metadata: { title: string, description: string }): Promise<WebsiteAnalysis> {
+export async function analyzeWebsite(
+  url: string, 
+  metadata: { title: string, description: string },
+  existingCategories?: string[]
+): Promise<WebsiteAnalysis> {
   const { GoogleGenerativeAI } = await import('@google/generative-ai');
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
   const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
@@ -215,15 +219,15 @@ export async function analyzeWebsite(url: string, metadata: { title: string, des
   const instruction = `Analyze the following website information and categorize it.
 This could be an AI tool, a developer tool, a news site, a portfolio, or any other type of website.
 
-Site Info:
 URL: ${url}
 Title: ${metadata.title}
 Meta Description: ${metadata.description}
+${existingCategories && existingCategories.length > 0 ? `Existing Categories: ${existingCategories.join(', ')}` : ''}
 
 You must return a structured JSON with:
 - name: The site's official name
 - description: A concise (1-2 sentence) summary of what the site is/does
-- category: A single broad category (e.g., AI Image, Dev Tools, News, Design, Portfolio, Social, Documentation, etc.)
+- category: A single category. IMPORTANT: If one of the "Existing Categories" fits perfectly, use it. If not, suggest a highly relevant new category (e.g., Marketing, Learning, Management).
 - pricing: "Free", "Freemium", "Paid", or "Unknown"
 - tags: Array of 3-5 relevant keywords
 
