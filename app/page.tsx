@@ -5,6 +5,7 @@ import { AnimatedBackground } from '@/components/AnimatedBackground';
 
 // Lazy load heavy sections
 const Features = dynamic(() => import('@/components/landing/Features').then(mod => mod.Features));
+const AIToolsShowcase = dynamic(() => import('@/components/landing/AIToolsShowcase').then(mod => mod.AIToolsShowcase));
 const HowItWorks = dynamic(() => import('@/components/landing/HowItWorks').then(mod => mod.HowItWorks));
 const WhyZanZora = dynamic(() => import('@/components/landing/WhyZanZora').then(mod => mod.WhyZanZora));
 const CTA = dynamic(() => import('@/components/landing/CTA').then(mod => mod.CTA));
@@ -18,6 +19,7 @@ export default function HomePage() {
         <LandingNavbar />
         <Hero />
         <Features />
+        <AIToolsShowcase />
         <HowItWorks />
         <WhyZanZora />
         <CTA />

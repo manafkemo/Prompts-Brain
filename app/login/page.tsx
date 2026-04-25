@@ -11,15 +11,18 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    // Initialize client dynamically with rememberMe option
+    const supabase = createClient(rememberMe);
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -131,6 +134,27 @@ export default function LoginPage() {
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
+              </div>
+
+              <div className="flex items-center justify-between text-sm px-1">
+                <label className="flex items-center gap-2.5 cursor-pointer text-slate-400 hover:text-slate-200 transition-colors group">
+                  <div className="relative flex items-center justify-center">
+                    <input 
+                      type="checkbox" 
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="peer appearance-none w-5 h-5 border-2 border-slate-600 rounded-md bg-slate-800/40 checked:bg-violet-600 checked:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/30 transition-all cursor-pointer"
+                    />
+                    <svg className="absolute w-3.5 h-3.5 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <span className="font-medium">Remember me</span>
+                </label>
+                
+                <Link href="#" className="text-violet-400 font-bold hover:text-violet-300 hover:underline transition-colors">
+                  Forgot Password?
+                </Link>
               </div>
 
               {error && (

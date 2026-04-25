@@ -439,6 +439,8 @@ export default function ToolsPage() {
           )}
         </nav>
       </div>
+      {/* Spacer to ensure the last item is fully visible and not cut off by screen edges */}
+      <div className="h-12 w-full flex-shrink-0" />
     </>
   );
 
@@ -448,7 +450,7 @@ export default function ToolsPage() {
 
       <div className="flex flex-col lg:flex-row min-h-[calc(100vh-64px)]">
         {/* Desktop Sidebar */}
-        <aside className="hidden lg:block lg:w-72 border-r border-white/5 bg-slate-950/50 backdrop-blur-xl lg:sticky lg:top-16 lg:h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar p-6">
+        <aside className="hidden lg:block lg:w-72 border-r border-white/5 bg-slate-950/50 backdrop-blur-xl p-6">
           <SidebarContent />
         </aside>
 

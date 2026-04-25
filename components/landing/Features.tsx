@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Search, Sparkles, Palette, Camera } from 'lucide-react';
+import { Search, Sparkles, Palette, Camera, Library, Target } from 'lucide-react';
 
 const features = [
   {
@@ -13,6 +13,16 @@ const features = [
     icon: <Sparkles className="h-6 w-6" />,
     title: 'Prompt Improver',
     description: 'Transform basic instructions into professional-grade prompts with one click using Gemini AI.'
+  },
+  {
+    icon: <Library className="h-6 w-6" />,
+    title: 'Curated AI Directory',
+    description: 'Access a meticulously organized library of the world\'s most powerful AI tools and services.'
+  },
+  {
+    icon: <Target className="h-6 w-6" />,
+    title: 'Smart AI Matchmaking',
+    description: 'Instantly discover the exact AI tools you need through context-aware, intelligent recommendations.'
   },
   {
     icon: <Palette className="h-6 w-6" />,
@@ -39,7 +49,7 @@ export function Features() {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, index) => (
             <motion.div
               key={index}
