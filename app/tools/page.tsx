@@ -118,6 +118,8 @@ export default function ToolsPage() {
       else next.delete(toolId);
       return next;
     });
+    
+    setTools(prev => prev.map(t => t.id === toolId ? { ...t, is_favorite: status } : t));
 
     try {
       const res = await fetch('/api/tools/favorite', {
@@ -133,6 +135,7 @@ export default function ToolsPage() {
         else next.add(toolId);
         return next;
       });
+      setTools(prev => prev.map(t => t.id === toolId ? { ...t, is_favorite: !status } : t));
       console.error(e);
     }
   };

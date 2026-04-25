@@ -5,9 +5,6 @@ Disallow: /dashboard
 Disallow: /prompt
 Disallow: /admin
 Disallow: /api
-Disallow: /login
-Disallow: /signup
-Disallow: /profile
 
 # Host
 Host: https://zanzora.com
