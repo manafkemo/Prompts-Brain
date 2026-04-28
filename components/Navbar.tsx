@@ -6,6 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { BrainCircuit, LogOut, User, Plus, Sparkles, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@/lib/supabase';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 interface NavbarProps {
   onNewPrompt?: () => void;
@@ -22,14 +23,24 @@ export function Navbar({ onNewPrompt }: NavbarProps) {
     let isMounted = true;
     let channel: any;
 
-    const setupSubscription = async () => {
+    const initData = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user || !isMounted) return;
+        // Fetch user exactly once to avoid Supabase auth lock collisions
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error || !user || !isMounted) return;
 
-        // Use a unique name for this specific effect run to avoid collisions
-        // the error "cannot add callbacks after subscribe" happens when reusing 
-        // a channel name that hasn't finished its lifecycle yet.
+        // 1. Fetch initial credits
+        const { data } = await supabase
+          .from('profiles')
+          .select('credits')
+          .eq('id', user.id)
+          .single();
+
+        if (data && isMounted) {
+          setCredits(data.credits);
+        }
+
+        // 2. Setup real-time subscription for updates
         const channelName = `credits_${user.id}_${Math.random().toString(36).slice(2, 11)}`;
         
         channel = supabase
@@ -50,12 +61,11 @@ export function Navbar({ onNewPrompt }: NavbarProps) {
           )
           .subscribe();
       } catch (err) {
-        console.error('Failed to setup credit subscription:', err);
+        console.error('Failed to initialize user data:', err);
       }
     };
 
-    fetchCredits();
-    setupSubscription();
+    initData();
 
     return () => {
       isMounted = false;
@@ -64,21 +74,6 @@ export function Navbar({ onNewPrompt }: NavbarProps) {
       }
     };
   }, []);
-
-  const fetchCredits = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('credits')
-      .eq('id', user.id)
-      .single();
-
-    if (data) {
-      setCredits(data.credits);
-    }
-  };
 
 
 
@@ -154,6 +149,8 @@ export function Navbar({ onNewPrompt }: NavbarProps) {
             >
               <User className="h-5 w-5" />
             </Link>
+
+            <ThemeToggle />
 
             <button 
               onClick={handleLogout}
@@ -249,6 +246,11 @@ export function Navbar({ onNewPrompt }: NavbarProps) {
                 <div className="h-px bg-white/5 my-6 mx-2"></div>
                 
                 <p className="text-[10px] font-black tracking-widest text-slate-500 uppercase mb-4 px-2">Account</p>
+
+                <div className="flex items-center gap-3 px-4 py-3 mb-1">
+                  <span className="text-xs font-semibold text-slate-400">Theme</span>
+                  <ThemeToggle />
+                </div>
 
                 <Link 
                   href="/profile" 

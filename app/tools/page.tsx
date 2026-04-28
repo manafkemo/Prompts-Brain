@@ -9,6 +9,7 @@ import { ToolCard } from '@/components/tools/ToolCard';
 import { ToolDetailModal } from '@/components/tools/ToolDetailModal';
 import { AddToolModal } from '@/components/tools/AddToolModal';
 import { AddCategoryModal } from '@/components/tools/AddCategoryModal';
+import { DeleteCategoryModal } from '@/components/tools/DeleteCategoryModal';
 import { MoveToCategoryModal } from '@/components/tools/MoveToCategoryModal';
 import { AIRecommendBox, Recommendation } from '@/components/tools/AIRecommendBox';
 import { 
@@ -44,6 +45,8 @@ export default function ToolsPage() {
   const [editingCategory, setEditingCategory] = useState<ToolCategory | null>(null);
   const [movingToolId, setMovingToolId] = useState<string | null>(null);
   const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<ToolCategory | null>(null);
+  const [isDeletingCategory, setIsDeletingCategory] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [pricingFilter, setPricingFilter] = useState<string>('All');
@@ -187,17 +190,20 @@ export default function ToolsPage() {
     setIsAddCategoryModalOpen(true);
   };
 
-  const handleDeleteCategory = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this category? Tools will be removed from it but not deleted.')) return;
-    
+  const confirmDeleteCategory = async () => {
+    if (!categoryToDelete) return;
+    setIsDeletingCategory(true);
     try {
-      const res = await fetch(`/api/categories?id=${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/categories?id=${categoryToDelete.id}`, { method: 'DELETE' });
       if (res.ok) {
-        if (categoryFilter === id) setCategoryFilter('All');
+        if (categoryFilter === categoryToDelete.id) setCategoryFilter('All');
         fetchCategories();
+        setCategoryToDelete(null);
       }
     } catch (e) {
       console.error(e);
+    } finally {
+      setIsDeletingCategory(false);
     }
   };
 
@@ -255,7 +261,7 @@ export default function ToolsPage() {
     return matchesCategory && matchesSearch && matchesPricing;
   });
 
-  const SidebarContent = () => (
+  const sidebarContentNode = (
     <>
       <div className="mb-8">
         <h2 className="text-xs font-bold uppercase tracking-widest text-slate-500 mb-6 px-3">
@@ -422,7 +428,7 @@ export default function ToolsPage() {
                       <Palette className="h-3.5 w-3.5" />
                     </button>
                     <button 
-                      onClick={(e) => { e.stopPropagation(); handleDeleteCategory(cat.id); }}
+                      onClick={(e) => { e.stopPropagation(); setCategoryToDelete(cat); }}
                       className="p-1 hover:bg-red-500/20 rounded text-slate-500 hover:text-red-400"
                       title="Delete"
                     >
@@ -445,13 +451,13 @@ export default function ToolsPage() {
   );
 
   return (
-    <div className="min-h-screen bg-black overflow-x-hidden text-slate-200">
+    <div className="min-h-screen bg-[var(--background)] text-slate-200">
       <Navbar />
 
       <div className="flex flex-col lg:flex-row min-h-[calc(100vh-64px)]">
         {/* Desktop Sidebar */}
-        <aside className="hidden lg:block lg:w-72 border-r border-white/5 bg-slate-950/50 backdrop-blur-xl p-6">
-          <SidebarContent />
+        <aside className="hidden lg:block lg:w-72 border-r border-white/5 bg-slate-950/50 backdrop-blur-xl p-6 sticky top-[64px] h-[calc(100vh-64px)] overflow-y-auto custom-scrollbar">
+          {sidebarContentNode}
         </aside>
 
         {/* Mobile Sidebar Drawer */}
@@ -481,7 +487,7 @@ export default function ToolsPage() {
                     <X className="h-5 w-5" />
                   </button>
                 </div>
-                <SidebarContent />
+                {sidebarContentNode}
               </motion.div>
             </div>
           )}
@@ -705,6 +711,14 @@ export default function ToolsPage() {
         categories={userCategories}
         currentCategoryId={tools.find(t => t.id === movingToolId)?.user_category_id}
         onMove={(catId) => movingToolId && handleMoveToolToCategory(movingToolId, catId)}
+      />
+
+      <DeleteCategoryModal
+        isOpen={!!categoryToDelete}
+        onClose={() => setCategoryToDelete(null)}
+        onConfirm={confirmDeleteCategory}
+        categoryName={categoryToDelete?.name || ''}
+        isDeleting={isDeletingCategory}
       />
 
       <footer className="mt-20 pb-12 border-t border-white/5 pt-12 bg-slate-950/30">

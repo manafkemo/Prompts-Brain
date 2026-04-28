@@ -22,6 +22,7 @@ export const metadata: Metadata = {
 };
 
 import { CookieConsent } from '@/components/ui/CookieConsent';
+import { ThemeProvider } from '@/lib/ThemeContext';
 
 export default function RootLayout({
   children,
@@ -31,8 +32,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
-        {children}
-        <CookieConsent />
+        <ThemeProvider>
+          {children}
+          <CookieConsent />
+        </ThemeProvider>
       </body>
     </html>
   );

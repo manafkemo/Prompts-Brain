@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { BrainCircuit } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 export function LandingNavbar() {
   return (
@@ -19,7 +20,8 @@ export function LandingNavbar() {
           </span>
         </Link>
         
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4">
+          <ThemeToggle />
           <Link 
             href="/login" 
             className="text-sm font-medium text-slate-300 hover:text-white transition-colors"

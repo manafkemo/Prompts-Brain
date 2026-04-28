@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
+import { useTheme } from '@/lib/ThemeContext';
 
 export interface AnimatedBackgroundProps {
   /** Number of particles (recommended 20-40) */
@@ -17,6 +18,13 @@ export function AnimatedBackground({
   intensity = 0.5 
 }: AnimatedBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { theme } = useTheme();
+  const themeRef = useRef(theme);
+
+  // Keep ref in sync so the animation loop reads the latest theme
+  useEffect(() => {
+    themeRef.current = theme;
+  }, [theme]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -120,8 +128,8 @@ export function AnimatedBackground({
     const animate = () => {
       if (!isActive || !ctx) return;
       
-      // Draw dark background directly onto canvas to ensure high performance
-      ctx.fillStyle = '#0f172a'; // Match slate-900 / dark mode
+      // Draw background — color changes based on active theme
+      ctx.fillStyle = themeRef.current === 'light' ? '#f1f5f9' : '#0f172a';
       ctx.fillRect(0, 0, width, height);
       
       for (let i = 0; i < particles.length; i++) {

@@ -15,12 +15,12 @@
   --color-brand-950: #2e1065;
 }
 
-/* 
-  Modern Dark UI Defaults 
-*/
+/* ======================== */
+/*   Dark Mode (Default)    */
+/* ======================== */
 @layer base {
   :root {
-    --background: #09090b; /* slate 950 essentially */
+    --background: #09090b;
     --foreground: #f8fafc;
   }
 }
@@ -30,6 +30,7 @@ body {
   color: var(--foreground);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 html {
@@ -38,14 +39,14 @@ html {
 
 /* Glassmorphism utils */
 .glass {
-  background: rgba(15, 23, 42, 0.6); /* slate 900 with opacity */
+  background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .glass-panel {
-  background: rgba(30, 41, 59, 0.7); /* slate 800 with opacity */
+  background: rgba(30, 41, 59, 0.7);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -57,16 +58,13 @@ html {
   width: 8px;
   height: 8px;
 }
-
 ::-webkit-scrollbar-track {
   background: rgba(15, 23, 42, 0.5);
 }
-
 ::-webkit-scrollbar-thumb {
   background: rgba(71, 85, 105, 0.8);
   border-radius: 4px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(148, 163, 184, 1);
 }
@@ -75,4 +73,101 @@ html {
 .font-en-nums {
   font-variant-numeric: lining-nums tabular-nums;
   font-feature-settings: "lnum" 1, "tnum" 1;
+}
+
+/* ======================== */
+/*   Light Mode Premium     */
+/* ======================== */
+
+html.light {
+  color-scheme: light;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+}
+
+html.light body {
+  background-color: #f8fafc;
+  color: #0f172a;
+  background-image: radial-gradient(circle at top right, rgba(139, 92, 246, 0.03), transparent 40%),
+                    radial-gradient(circle at bottom left, rgba(217, 70, 239, 0.03), transparent 40%);
+}
+
+/* ---- Frosted Glass Panels (Replaces flat dark slates) ---- */
+html.light .glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+html.light .glass-panel {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.6) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04), inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+/* Background overrides: Convert dark boxes to elegant white frosted glass */
+html.light .bg-black        { background-color: #f8fafc !important; }
+html.light [class*="bg-slate-950"] { background-color: rgba(255, 255, 255, 0.8) !important; backdrop-filter: blur(12px); }
+html.light [class*="bg-slate-900"] { background-color: rgba(255, 255, 255, 0.6) !important; backdrop-filter: blur(12px); }
+html.light [class*="bg-slate-800"] { background-color: rgba(241, 245, 249, 0.8) !important; backdrop-filter: blur(12px); }
+
+/* ---- Text overrides (High Contrast & Crisp) ---- */
+html.light [class*="text-white"]     { color: #0f172a !important; }
+html.light [class*="text-slate-100"] { color: #1e293b !important; }
+html.light [class*="text-slate-200"] { color: #334155 !important; }
+html.light [class*="text-slate-300"] { color: #475569 !important; }
+html.light [class*="text-slate-400"] { color: #64748b !important; }
+html.light [class*="text-slate-500"] { color: #64748b !important; }
+html.light [class*="text-slate-600"] { color: #94a3b8 !important; }
+
+/* ---- Vibrant Accent Colors for Light Mode ---- */
+/* Darkens the neon violet/fuchsia text so it's readable and punchy on white */
+html.light [class*="from-violet-400"] { --tw-gradient-from: #7c3aed !important; } /* violet-600 */
+html.light [class*="to-fuchsia-400"]  { --tw-gradient-to: #c026d3 !important; } /* fuchsia-600 */
+html.light [class*="to-indigo-300"]   { --tw-gradient-to: #4338ca !important; } /* indigo-700 */
+
+html.light [class*="text-violet-400"] { color: #6d28d9 !important; } /* violet-700 */
+html.light [class*="text-violet-300"] { color: #7c3aed !important; } /* violet-600 */
+
+/* ---- Border overrides (Subtle definition) ---- */
+html.light [class*="border-slate-800"] { border-color: rgba(0, 0, 0, 0.06) !important; }
+html.light [class*="border-slate-700"] { border-color: rgba(0, 0, 0, 0.08) !important; }
+html.light [class*="border-white"]     { border-color: rgba(0, 0, 0, 0.12) !important; }
+html.light [class*="border-violet-500"] { border-color: rgba(139, 92, 246, 0.2) !important; }
+
+/* ---- Hover state overrides ---- */
+html.light [class*="hover:bg-slate-800"]:hover { background-color: #e2e8f0 !important; }
+html.light [class*="hover:bg-slate-800/50"]:hover { background-color: rgba(226,232,240,0.8) !important; }
+html.light [class*="hover:bg-white"]:hover { background-color: rgba(0,0,0,0.05) !important; }
+
+/* ---- Placeholder ---- */
+html.light .placeholder-slate-500::placeholder { color: #94a3b8; }
+
+/* ---- Navbar (header) ---- */
+html.light header {
+  background-color: rgba(248, 250, 252, 0.85) !important;
+  border-bottom-color: #e2e8f0;
+}
+
+/* ---- Mobile drawer ---- */
+html.light [class*="bg-slate-900"][class*="border-l"] {
+  background-color: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ---- Empty state / dashed panels ---- */
+html.light .border-dashed { border-color: #cbd5e1; }
+
+/* ---- Scrollbar ---- */
+html.light ::-webkit-scrollbar-track  { background: rgba(241, 245, 249, 0.5); }
+html.light ::-webkit-scrollbar-thumb  { background: rgba(148, 163, 184, 0.4); }
+html.light ::-webkit-scrollbar-thumb:hover { background: rgba(100, 116, 139, 0.6); }
+
+/* ---- Footer ---- */
+html.light footer {
+  background-color: #ffffff;
+  border-top-color: rgba(0, 0, 0, 0.05);
 }

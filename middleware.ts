@@ -45,6 +45,11 @@ export async function middleware(request: NextRequest) {
 
   // Redirect unauthenticated users to login, except for public paths
   if (!user && !isPublicPath) {
+    // If it's an API route, return 401 JSON instead of redirecting to an HTML page
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = '/login';
     return NextResponse.redirect(loginUrl);
