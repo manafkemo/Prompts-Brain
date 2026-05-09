@@ -127,7 +127,7 @@ export default function AdminDashboard() {
         {/* Content */}
         <div className="relative">
           <div className="absolute -top-24 -left-24 w-96 h-96 bg-violet-600/10 blur-[120px] rounded-full" />
-          <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-blue-600/10 blur-[120px] rounded-full" />
+          <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-violet-600/10 blur-[120px] rounded-full" />
           
           <div className="relative z-10">
             <AdminUserTable 

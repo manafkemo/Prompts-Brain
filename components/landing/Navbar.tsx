@@ -30,7 +30,7 @@ export function LandingNavbar() {
           </Link>
           <Link 
             href="/login" 
-            className="bg-violet-600 hover:bg-violet-700 text-white px-6 py-2 rounded-full text-sm font-bold transition-all shadow-lg shadow-violet-500/20 active:scale-95"
+            className="bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 text-white px-6 py-2 rounded-full text-sm font-bold transition-all shadow-lg shadow-violet-500/20 active:scale-95"
           >
             Get Started
           </Link>

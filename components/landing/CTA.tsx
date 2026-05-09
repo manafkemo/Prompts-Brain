@@ -16,7 +16,7 @@ export function CTA() {
         >
           {/* Decorative gradients */}
           <div className="absolute -top-24 -left-24 w-64 h-64 bg-violet-600/20 blur-[100px] rounded-full" />
-          <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-fuchsia-600/20 blur-[100px] rounded-full" />
+          <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-pink-600/20 blur-[100px] rounded-full" />
           
           <div className="relative z-10">
             <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tight leading-tight">

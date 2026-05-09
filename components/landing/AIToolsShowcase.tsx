@@ -6,11 +6,7 @@ import Link from 'next/link';
 
 export function AIToolsShowcase() {
   return (
-    <section className="py-24 relative overflow-hidden">
-      {/* Background Gradients */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-violet-600/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-fuchsia-600/10 rounded-full blur-[100px] pointer-events-none" />
-
+    <section className="py-24 relative overflow-hidden bg-transparent">
       <div className="container mx-auto max-w-7xl px-4 relative z-10">
         <div className="flex flex-col lg:flex-row items-center gap-16">
           
@@ -28,7 +24,7 @@ export function AIToolsShowcase() {
             </div>
             
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight tracking-tight">
-              Discover the <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400">Perfect AI Tool</span> for Any Task.
+              Discover the <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-pink-500">Perfect AI Tool</span> for Any Task.
             </h2>
             
             <p className="text-lg text-slate-400 leading-relaxed max-w-xl">
@@ -75,7 +71,7 @@ export function AIToolsShowcase() {
           >
             <div className="relative group">
               {/* Glow Behind Image */}
-              <div className="absolute -inset-4 bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-[2.5rem] blur-2xl opacity-30 group-hover:opacity-50 transition-opacity duration-500" />
+              <div className="absolute -inset-4 bg-gradient-to-r from-violet-600 to-pink-600 rounded-[2.5rem] blur-2xl opacity-30 group-hover:opacity-50 transition-opacity duration-500" />
               
               <div className="relative glass-panel rounded-[2rem] overflow-hidden border border-white/10 shadow-2xl bg-slate-900/50">
                 {/* Safari-style window controls */}
@@ -98,7 +94,7 @@ export function AIToolsShowcase() {
                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                 className="absolute -bottom-6 -left-6 glass-panel p-4 rounded-2xl border-violet-500/30 flex items-center gap-4 bg-slate-900/90 shadow-2xl backdrop-blur-xl"
               >
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center shadow-inner">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-pink-500 flex items-center justify-center shadow-inner">
                   <Sparkles className="w-6 h-6 text-white" />
                 </div>
                 <div>

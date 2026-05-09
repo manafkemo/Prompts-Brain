@@ -8,9 +8,6 @@ export function Hero() {
   return (
     <section className="pt-32 pb-20 px-4 overflow-hidden">
       <div className="container mx-auto max-w-6xl relative">
-        {/* Background glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-96 bg-violet-600/20 blur-[120px] rounded-full -z-10" />
-        
         <div className="text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -29,7 +26,7 @@ export function Hero() {
             className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight leading-[1.1]"
           >
             Turn Your Prompts Into a <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-fuchsia-400">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-400 via-fuchsia-400 to-pink-500">
               Powerful AI Brain
             </span>
           </motion.h1>

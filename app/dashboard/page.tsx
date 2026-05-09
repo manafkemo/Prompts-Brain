@@ -212,7 +212,7 @@ export default function DashboardPage() {
     : prompts;
 
   return (
-    <div className="min-h-screen bg-[var(--background)] overflow-x-hidden">
+    <div className="min-h-screen bg-transparent overflow-x-hidden">
       <Navbar onNewPrompt={() => setIsModalOpen(true)} />
 
       {/* Hover Zone Trigger (Invisible strip on the right) */}

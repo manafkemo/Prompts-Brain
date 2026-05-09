@@ -23,6 +23,7 @@ export const metadata: Metadata = {
 
 import { CookieConsent } from '@/components/ui/CookieConsent';
 import { ThemeProvider } from '@/lib/ThemeContext';
+import { FluidGradientBackground } from '@/components/FluidGradientBackground';
 
 export default function RootLayout({
   children,
@@ -33,7 +34,10 @@ export default function RootLayout({
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`} suppressHydrationWarning>
         <ThemeProvider>
-          {children}
+          <FluidGradientBackground />
+          <div className="relative z-10">
+            {children}
+          </div>
           <CookieConsent />
         </ThemeProvider>
       </body>
